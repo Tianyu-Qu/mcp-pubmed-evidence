@@ -1,4 +1,4 @@
-﻿"""MCP server exposing PubMed evidence tools."""
+"""MCP server exposing PubMed evidence tools."""
 
 from __future__ import annotations
 
@@ -44,6 +44,20 @@ async def get_pubmed_article(pmid: str) -> dict:
 
     article = await fetch_pubmed_article(pmid)
     return article.model_dump(mode="json")
+
+
+@mcp.tool()
+async def get_abstract(pmid: str) -> dict:
+    """Fetch the abstract for one PubMed article by PMID with citation provenance."""
+
+    article = await fetch_pubmed_article(pmid)
+    return {
+        "pmid": article.pmid,
+        "title": article.title,
+        "abstract": article.abstract,
+        "doi": article.doi,
+        "pubmed_url": str(article.pubmed_url),
+    }
 
 
 @mcp.tool()

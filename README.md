@@ -176,6 +176,10 @@ ruff check .
 - Network access to PubMed may require a proxy depending on the user's environment.
 - Tool outputs should be reviewed by a human before being used in manuscripts, clinical documents, or systematic reviews.
 
+## Release Notes
+
+See [CHANGELOG.md](CHANGELOG.md) for v0.1.0 release notes.
+
 ## Roadmap
 
 - Add ClinicalTrials.gov tools
