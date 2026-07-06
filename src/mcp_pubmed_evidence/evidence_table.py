@@ -1,10 +1,41 @@
-"""Converters for unified biomedical evidence table rows."""
+"""Converters and builders for unified biomedical evidence table rows."""
 
 from __future__ import annotations
 
+from .clinicaltrials import search_trials
 from .evidence_models import BiomedicalEvidenceRow, EvidenceProvenance
 from .models import PubMedArticle
+from .pubmed import search_pubmed
 from .trial_models import TrialSearchRecord, TrialSummary
+
+
+async def build_biomedical_evidence_table(
+    query: str | None = None,
+    condition: str | None = None,
+    intervention: str | None = None,
+    max_pubmed_results: int = 10,
+    max_trial_results: int = 10,
+) -> list[BiomedicalEvidenceRow]:
+    """Build a unified evidence table from PubMed and ClinicalTrials.gov results."""
+
+    if not any([query, condition, intervention]):
+        raise ValueError("at least one of query, condition, or intervention must be provided")
+
+    rows: list[BiomedicalEvidenceRow] = []
+    if query:
+        pubmed_result = await search_pubmed(query=query, max_results=max_pubmed_results)
+        rows.extend(pubmed_article_to_evidence_row(article) for article in pubmed_result.articles)
+
+    if condition or intervention:
+        trial_result = await search_trials(
+            query=query,
+            condition=condition,
+            intervention=intervention,
+            max_results=max_trial_results,
+        )
+        rows.extend(trial_to_evidence_row(trial) for trial in trial_result.trials)
+
+    return rows
 
 
 def pubmed_article_to_evidence_row(article: PubMedArticle) -> BiomedicalEvidenceRow:

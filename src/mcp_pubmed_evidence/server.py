@@ -14,6 +14,7 @@ from .clinicaltrials import (
 from .clinicaltrials import (
     search_trials as search_trials_core,
 )
+from .evidence_table import build_biomedical_evidence_table as build_biomedical_table_core
 from .pubmed import (
     build_evidence_table as build_evidence_table_rows,
 )
@@ -120,6 +121,26 @@ async def map_trial_to_publications(nct_id: str) -> dict:
 
     publication_map = await map_trial_publications_core(nct_id)
     return publication_map.model_dump(mode="json")
+
+
+@mcp.tool()
+async def build_biomedical_evidence_table(
+    query: str | None = None,
+    condition: str | None = None,
+    intervention: str | None = None,
+    max_pubmed_results: int = 10,
+    max_trial_results: int = 10,
+) -> list[dict]:
+    """Build a unified evidence table from PubMed and ClinicalTrials.gov results."""
+
+    rows = await build_biomedical_table_core(
+        query=query,
+        condition=condition,
+        intervention=intervention,
+        max_pubmed_results=max_pubmed_results,
+        max_trial_results=max_trial_results,
+    )
+    return [row.model_dump(mode="json") for row in rows]
 
 
 def main() -> None:

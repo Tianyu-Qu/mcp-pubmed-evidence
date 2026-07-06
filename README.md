@@ -178,7 +178,7 @@ Inputs:
 
 Fetch one ClinicalTrials.gov trial by NCT ID and return detailed structured metadata including arms, outcomes, eligibility, locations, sponsors, collaborators, references, and result references.
 
-### `map_trial_to_publications`
+### `map_trial_to_publications`r`nbuild_biomedical_evidence_table`
 
 Map one ClinicalTrials.gov NCT ID to linked PubMed publications when PMIDs are available in ClinicalTrials.gov references.
 
@@ -210,7 +210,7 @@ See [CHANGELOG.md](CHANGELOG.md) for v0.1.0 release notes.
 
 ## v0.3.0 Development
 
-The next milestone, `v0.3.0 Evidence Table 2.0`, introduces a unified biomedical evidence row schema for combining PubMed articles and ClinicalTrials.gov trial records. The first step is schema and conversion support; the MCP tool for building integrated evidence tables will be added separately.
+The next milestone, `v0.3.0 Evidence Table 2.0`, introduces a unified biomedical evidence row schema for combining PubMed articles and ClinicalTrials.gov trial records. The `build_biomedical_evidence_table` MCP tool now returns integrated evidence rows with source provenance.
 ## Roadmap
 
 - Expand ClinicalTrials.gov result fields and examples

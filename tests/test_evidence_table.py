@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import pytest
 from pydantic import HttpUrl
 
 from mcp_pubmed_evidence.evidence_table import (
+    build_biomedical_evidence_table,
     pubmed_article_to_evidence_row,
     trial_to_evidence_row,
 )
@@ -93,3 +95,70 @@ def test_trial_summary_to_evidence_row_includes_outcomes() -> None:
     row = trial_to_evidence_row(trial)
 
     assert row.outcomes == ["Cognitive score change", "Safety events"]
+
+
+class PubMedResultStub:
+    def __init__(self, articles: list[PubMedArticle]):
+        self.articles = articles
+
+
+class TrialResultStub:
+    def __init__(self, trials: list[TrialSearchRecord]):
+        self.trials = trials
+
+
+@pytest.mark.asyncio
+async def test_build_biomedical_evidence_table_combines_sources(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    article = PubMedArticle(
+        pmid="12345678",
+        title="PubMed article",
+        authors=[],
+        journal="Example Journal",
+        year=2024,
+        publication_date="2024",
+        article_types=["Journal Article"],
+        doi="10.1000/example",
+        abstract=None,
+        pubmed_url=HttpUrl("https://pubmed.ncbi.nlm.nih.gov/12345678/"),
+    )
+    trial = TrialSearchRecord(
+        nct_id="NCT12345678",
+        brief_title="Clinical trial",
+        status="RECRUITING",
+        phase="PHASE2",
+        study_type="INTERVENTIONAL",
+        conditions=["Alzheimer Disease"],
+        interventions=["Semaglutide"],
+        enrollment=120,
+        start_date="2025-01",
+        clinicaltrials_url=HttpUrl("https://clinicaltrials.gov/study/NCT12345678"),
+    )
+
+    async def fake_search_pubmed(**kwargs: object) -> PubMedResultStub:
+        return PubMedResultStub([article])
+
+    async def fake_search_trials(**kwargs: object) -> TrialResultStub:
+        return TrialResultStub([trial])
+
+    monkeypatch.setattr("mcp_pubmed_evidence.evidence_table.search_pubmed", fake_search_pubmed)
+    monkeypatch.setattr("mcp_pubmed_evidence.evidence_table.search_trials", fake_search_trials)
+
+    rows = await build_biomedical_evidence_table(
+        query="GLP-1 cognitive decline",
+        condition="Alzheimer Disease",
+        intervention="Semaglutide",
+        max_pubmed_results=1,
+        max_trial_results=1,
+    )
+
+    assert [row.source_type for row in rows] == ["pubmed", "clinical_trial"]
+    assert rows[0].source_id == "12345678"
+    assert rows[1].source_id == "NCT12345678"
+
+
+@pytest.mark.asyncio
+async def test_build_biomedical_evidence_table_requires_input() -> None:
+    with pytest.raises(ValueError, match="at least one"):
+        await build_biomedical_evidence_table()
