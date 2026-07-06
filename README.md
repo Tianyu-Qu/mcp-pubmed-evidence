@@ -11,14 +11,16 @@ Early development. The first version focuses on PubMed metadata retrieval and ci
 ## Features
 
 - Search PubMed with optional year and publication type filters
+- Search ClinicalTrials.gov by query, condition, intervention, status, and result limit
 - Fetch normalized metadata for a PubMed article by PMID
 - Export PubMed records as BibTeX entries
 - Build compact evidence tables for agent workflows
-- Return structured fields such as PMID, title, authors, journal, year, DOI, abstract, article types, and PubMed URL
+- Return structured PubMed fields such as PMID, title, authors, journal, year, DOI, abstract, article types, and PubMed URL
+- Return structured trial fields such as NCT ID, condition, intervention, phase, status, enrollment, outcomes, locations, sponsors, and linked publication references
 
 ## Why MCP for Biomedical Evidence
 
-Biomedical research agents need reliable access to current, source-backed evidence. A plain chatbot can answer from model memory, but it may miss recent papers, blur study types, or provide weak citations. This MCP server gives agents a controlled tool layer for PubMed retrieval, structured metadata, citation export, and evidence-table generation.
+Biomedical research agents need reliable access to current, source-backed evidence. A plain chatbot can answer from model memory, but it may miss recent papers, blur study types, or provide weak citations. This MCP server gives agents a controlled tool layer for PubMed retrieval, ClinicalTrials.gov trial registry retrieval, structured metadata, citation export, and evidence-table generation.
 
 The goal is not to make medical decisions. The goal is to help agents retrieve and organize biomedical literature with provenance, stable schemas, and clear source URLs.
 
@@ -99,7 +101,13 @@ With a year filter:
 python examples/search_pubmed.py "Alzheimer disease machine learning" --max-results 5 --year-from 2022 --year-to 2026
 ```
 
-Example output is available in `examples/sample_search_output.json`.
+Search ClinicalTrials.gov without an MCP client:
+
+```powershell
+python examples/search_trials.py --condition "Alzheimer disease" --intervention "GLP-1" --max-results 5
+```
+
+Example outputs are available in `examples/sample_search_output.json` and `examples/sample_trial_output.json`.
 
 You can also verify the MCP stdio server locally by listing its tools:
 
@@ -154,6 +162,26 @@ Fetch PubMed articles by PMID and export BibTeX entries.
 
 Fetch PubMed articles by PMID and return compact evidence table rows.
 
+### `search_trials`
+
+Search ClinicalTrials.gov and return compact trial records.
+
+Inputs:
+
+- `query`: optional general trial query
+- `condition`: optional condition or disease filter
+- `intervention`: optional intervention, drug, or device filter
+- `status`: optional recruitment status filter
+- `max_results`: maximum number of trials to return, capped at 50
+
+### `get_trial_summary`
+
+Fetch one ClinicalTrials.gov trial by NCT ID and return detailed structured metadata including arms, outcomes, eligibility, locations, sponsors, collaborators, references, and result references.
+
+### `map_trial_to_publications`
+
+Map one ClinicalTrials.gov NCT ID to linked PubMed publications when PMIDs are available in ClinicalTrials.gov references.
+
 ## Development
 
 Run tests:
@@ -170,7 +198,7 @@ ruff check .
 
 ## Limitations
 
-- PubMed metadata can be incomplete; DOI, abstract, author, journal, or publication date may be missing.
+- PubMed and ClinicalTrials.gov metadata can be incomplete; DOI, abstract, author, journal, publication date, outcomes, locations, or linked PMIDs may be missing.
 - Evidence tables are metadata-oriented in the first version and do not extract PICO elements or judge study quality.
 - The server does not provide diagnosis, treatment recommendations, or medical advice.
 - Network access to PubMed may require a proxy depending on the user's environment.
@@ -182,7 +210,7 @@ See [CHANGELOG.md](CHANGELOG.md) for v0.1.0 release notes.
 
 ## Roadmap
 
-- Add ClinicalTrials.gov tools
+- Expand ClinicalTrials.gov result fields and examples
 - Add OpenAlex/Crossref DOI resolution
 - Add richer evidence table extraction
 - Add example MCP client configurations

@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.2.0 - ClinicalTrials.gov Evidence Tools
+
+### Added
+
+- ClinicalTrials.gov search via `search_trials`.
+- Detailed trial summary retrieval via `get_trial_summary`.
+- NCT ID to PubMed publication mapping via `map_trial_to_publications`.
+- Trial schemas for compact search records, detailed summaries, outcomes, references, and publication maps.
+- Local ClinicalTrials.gov demo script and sample trial output.
+
+### Notes
+
+This release expands the project from PubMed literature retrieval to trial registry evidence retrieval. Trial outputs are structured for research support and evidence organization, not clinical decision-making.
+
+
 ## v0.1.0 - PubMed MCP Server
 
 Initial public release of `mcp-pubmed-evidence`.

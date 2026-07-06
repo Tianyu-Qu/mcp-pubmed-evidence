@@ -1,10 +1,19 @@
-"""MCP server exposing PubMed evidence tools."""
+"""MCP server exposing biomedical evidence tools."""
 
 from __future__ import annotations
 
 from mcp.server.fastmcp import FastMCP
 
 from .bibtex import articles_to_bibtex
+from .clinicaltrials import (
+    get_trial_summary as fetch_trial_summary,
+)
+from .clinicaltrials import (
+    map_trial_to_publications as map_trial_publications_core,
+)
+from .clinicaltrials import (
+    search_trials as search_trials_core,
+)
 from .pubmed import (
     build_evidence_table as build_evidence_table_rows,
 )
@@ -75,6 +84,42 @@ async def build_evidence_table(pmids: list[str]) -> list[dict]:
     articles = [await fetch_pubmed_article(pmid) for pmid in pmids]
     rows = build_evidence_table_rows(articles)
     return [row.model_dump(mode="json") for row in rows]
+
+
+@mcp.tool()
+async def search_trials(
+    query: str | None = None,
+    condition: str | None = None,
+    intervention: str | None = None,
+    status: str | None = None,
+    max_results: int = 10,
+) -> dict:
+    """Search ClinicalTrials.gov and return normalized trial records."""
+
+    result = await search_trials_core(
+        query=query,
+        condition=condition,
+        intervention=intervention,
+        status=status,
+        max_results=max_results,
+    )
+    return result.model_dump(mode="json")
+
+
+@mcp.tool()
+async def get_trial_summary(nct_id: str) -> dict:
+    """Fetch a detailed ClinicalTrials.gov trial summary by NCT ID."""
+
+    summary = await fetch_trial_summary(nct_id)
+    return summary.model_dump(mode="json")
+
+
+@mcp.tool()
+async def map_trial_to_publications(nct_id: str) -> dict:
+    """Map a ClinicalTrials.gov NCT ID to linked PubMed articles when available."""
+
+    publication_map = await map_trial_publications_core(nct_id)
+    return publication_map.model_dump(mode="json")
 
 
 def main() -> None:
