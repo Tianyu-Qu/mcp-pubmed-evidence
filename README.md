@@ -107,7 +107,19 @@ Search ClinicalTrials.gov without an MCP client:
 python examples/search_trials.py --condition "Alzheimer disease" --intervention "GLP-1" --max-results 5
 ```
 
-Example outputs are available in `examples/sample_search_output.json` and `examples/sample_trial_output.json`.
+Build a unified PubMed + ClinicalTrials.gov evidence table without an MCP client:
+
+```powershell
+python examples/build_biomedical_evidence_table.py --query "Alzheimer disease machine learning" --condition "Alzheimer disease" --max-pubmed-results 2 --max-trial-results 2
+```
+
+To print the same rows as JSON:
+
+```powershell
+python examples/build_biomedical_evidence_table.py --query "Alzheimer disease machine learning" --condition "Alzheimer disease" --max-pubmed-results 2 --max-trial-results 2 --json
+```
+
+Example outputs are available in `examples/sample_search_output.json`, `examples/sample_trial_output.json`, and `examples/sample_biomedical_evidence_table.json`.
 
 You can also verify the MCP stdio server locally by listing its tools:
 
@@ -120,8 +132,13 @@ Expected tools:
 ```text
 search_pubmed
 get_pubmed_article
+get_abstract
 export_bibtex
 build_evidence_table
+search_trials
+get_trial_summary
+map_trial_to_publications
+build_biomedical_evidence_table
 ```
 
 ## Demo
@@ -178,9 +195,23 @@ Inputs:
 
 Fetch one ClinicalTrials.gov trial by NCT ID and return detailed structured metadata including arms, outcomes, eligibility, locations, sponsors, collaborators, references, and result references.
 
-### `map_trial_to_publications`r`nbuild_biomedical_evidence_table`
+### `map_trial_to_publications`
 
 Map one ClinicalTrials.gov NCT ID to linked PubMed publications when PMIDs are available in ClinicalTrials.gov references.
+
+### `build_biomedical_evidence_table`
+
+Build a unified biomedical evidence table from PubMed articles and ClinicalTrials.gov trial records.
+
+Inputs:
+
+- `query`: optional PubMed query and optional trial query
+- `condition`: optional condition or disease filter for ClinicalTrials.gov
+- `intervention`: optional intervention, drug, or device filter for ClinicalTrials.gov
+- `max_pubmed_results`: maximum PubMed records to include
+- `max_trial_results`: maximum ClinicalTrials.gov records to include
+
+Returns integrated evidence rows with source type, source ID, title, date/year, study type, status, phase, conditions, interventions, outcomes, DOI, URL, and provenance.
 
 ## Development
 
