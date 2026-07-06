@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import json
+
 import pytest
 from pydantic import HttpUrl
 
+from mcp_pubmed_evidence.audit import AUDIT_LOG_ENV_VAR
 from mcp_pubmed_evidence.evidence_models import BiomedicalEvidenceRow, EvidenceProvenance
 from mcp_pubmed_evidence.models import PubMedArticle
 from mcp_pubmed_evidence.server import build_biomedical_evidence_table, get_abstract
@@ -38,6 +41,43 @@ async def test_get_abstract_returns_provenance(monkeypatch: pytest.MonkeyPatch) 
         "doi": "10.1000/example",
         "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/12345678/",
     }
+
+
+@pytest.mark.asyncio
+async def test_get_abstract_writes_audit_log_without_abstract_text(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path,
+) -> None:
+    log_path = tmp_path / "audit.jsonl"
+    monkeypatch.setenv(AUDIT_LOG_ENV_VAR, str(log_path))
+
+    async def fake_fetch_pubmed_article(pmid: str) -> PubMedArticle:
+        return PubMedArticle(
+            pmid=pmid,
+            title="Example article",
+            authors=["Jane Smith"],
+            journal="Example Journal",
+            year=2024,
+            publication_date="2024 Jan",
+            article_types=["Journal Article"],
+            doi="10.1000/example",
+            abstract="Sensitive abstract text should not appear in audit logs.",
+            pubmed_url=HttpUrl(f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/"),
+        )
+
+    monkeypatch.setattr(
+        "mcp_pubmed_evidence.server.fetch_pubmed_article",
+        fake_fetch_pubmed_article,
+    )
+
+    await get_abstract("12345678")
+
+    event = json.loads(log_path.read_text(encoding="utf-8").strip())
+    assert event["tool_name"] == "get_abstract"
+    assert event["status"] == "success"
+    assert event["arguments"] == {"pmid": "12345678"}
+    assert event["result_summary"] == {"result_type": "dict"}
+    assert "Sensitive abstract text" not in log_path.read_text(encoding="utf-8")
 
 
 @pytest.mark.asyncio

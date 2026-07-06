@@ -15,6 +15,7 @@ Early development. The first version focuses on PubMed metadata retrieval and ci
 - Report result-limit metadata, including requested limits, effective limits, returned counts, and truncation flags
 - Summarize source provenance at the response level so agents can see which databases contributed results
 - Validate biomedical research queries and reject obvious personal medical advice requests
+- Optionally write local JSONL audit logs for MCP tool calls without storing full query text or abstracts
 - Fetch normalized metadata for a PubMed article by PMID
 - Export PubMed records as BibTeX entries
 - Build compact evidence tables for agent workflows
@@ -238,12 +239,23 @@ Run linting:
 ruff check .
 ```
 
+## Audit Logging
+
+Audit logging is disabled by default. To enable local JSONL audit logs for MCP tool calls, set `MCP_PUBMED_EVIDENCE_AUDIT_LOG` to a file path before starting the MCP server:
+
+```powershell
+$env:MCP_PUBMED_EVIDENCE_AUDIT_LOG = "F:\Healthcare\mcp-pubmed-evidence\audit.jsonl"
+```
+
+Audit events include timestamp, tool name, status, sanitized argument summaries, result counts, truncation flags, and source counts when available. They intentionally do not store full query text, abstracts, eligibility criteria, or other long biomedical text fields.
+
 ## Limitations
 
 - PubMed and ClinicalTrials.gov metadata can be incomplete; DOI, abstract, author, journal, publication date, outcomes, locations, or linked PMIDs may be missing.
 - Evidence tables are metadata-oriented in the first version and do not extract PICO elements or judge study quality.
 - Result limits are capped to keep MCP responses manageable; tools report truncation metadata when a request exceeds the configured limit or when a source reports more available records than returned.
 - Query validation is a lightweight safety guardrail, not a complete medical-intent classifier.
+- Audit logging is local and opt-in; users are responsible for choosing an appropriate log path and retention policy.
 - The server does not provide diagnosis, treatment recommendations, or medical advice.
 - Network access to PubMed may require a proxy depending on the user's environment.
 - Tool outputs should be reviewed by a human before being used in manuscripts, clinical documents, or systematic reviews.
@@ -258,7 +270,7 @@ The next milestone, `v0.3.0 Evidence Table 2.0`, introduces a unified biomedical
 
 ## v0.4.0 Development
 
-The `v0.4.0 Evidence Quality & Safety` milestone adds guardrails for agent-facing biomedical tools. Current improvements add explicit result-limit, truncation, query-summary, source-provenance metadata, and lightweight biomedical query validation so MCP clients can tell where evidence came from, whether a response was capped, and whether a request falls outside the research-support scope.
+The `v0.4.0 Evidence Quality & Safety` milestone adds guardrails for agent-facing biomedical tools. Current improvements add explicit result-limit, truncation, query-summary, source-provenance metadata, lightweight biomedical query validation, and opt-in local audit logging so MCP clients can tell where evidence came from, whether a response was capped, and whether a request falls outside the research-support scope.
 
 ## Roadmap
 
