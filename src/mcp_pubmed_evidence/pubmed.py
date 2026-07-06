@@ -9,6 +9,7 @@ from collections.abc import Iterable
 import httpx
 
 from .models import EvidenceTableRow, PubMedArticle, PubMedSearchResult, ResultMetadata
+from .safety import validate_research_query
 
 NCBI_EUTILS_BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 DEFAULT_TIMEOUT = 20.0
@@ -27,10 +28,7 @@ def _clean_text(value: str | None) -> str | None:
 
 
 def _require_query(query: str) -> str:
-    normalized = query.strip()
-    if not normalized:
-        raise ValueError("query must not be empty")
-    return normalized
+    return validate_research_query(query, field_name="query", required=True) or ""
 
 
 def _normalize_max_results(max_results: int) -> int:

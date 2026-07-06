@@ -157,6 +157,12 @@ async def test_search_trials_requires_at_least_one_query_field() -> None:
 
 
 @pytest.mark.asyncio
+async def test_search_trials_rejects_personal_medical_advice() -> None:
+    with pytest.raises(ValueError, match="personal medical advice"):
+        await search_trials(query="what do I have based on my symptoms")
+
+
+@pytest.mark.asyncio
 async def test_search_trials_normalizes_response(monkeypatch: pytest.MonkeyPatch) -> None:
     async def fake_get_json(*args: object, **kwargs: object) -> dict:
         return {"studies": [TRIAL_STUDY], "totalCount": 75}

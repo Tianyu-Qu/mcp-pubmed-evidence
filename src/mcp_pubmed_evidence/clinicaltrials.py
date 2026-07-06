@@ -14,6 +14,7 @@ import httpx
 
 from .models import ResultMetadata
 from .pubmed import PubMedError, get_pubmed_article
+from .safety import validate_research_query
 from .trial_models import (
     TrialOutcome,
     TrialPublicationMap,
@@ -86,14 +87,20 @@ async def search_trials(
 ) -> TrialSearchResult:
     """Search ClinicalTrials.gov and return normalized trial records."""
 
-    if not any(_clean_text(value) for value in [query, condition, intervention]):
+    normalized_query = validate_research_query(query, field_name="query")
+    normalized_condition = validate_research_query(condition, field_name="condition")
+    normalized_intervention = validate_research_query(
+        intervention, field_name="intervention"
+    )
+
+    if not any([normalized_query, normalized_condition, normalized_intervention]):
         raise ValueError("at least one of query, condition, or intervention must be provided")
 
     effective_max_results = _normalize_max_results(max_results)
     params = _build_search_params(
-        query=query,
-        condition=condition,
-        intervention=intervention,
+        query=normalized_query,
+        condition=normalized_condition,
+        intervention=normalized_intervention,
         status=status,
         max_results=effective_max_results,
     )
@@ -112,16 +119,16 @@ async def search_trials(
     trials = [_parse_search_record(study) for study in payload.get("studies", [])]
     total_available = _parse_total_available(payload)
     return TrialSearchResult(
-        query=query,
-        condition=condition,
-        intervention=intervention,
+        query=normalized_query,
+        condition=normalized_condition,
+        intervention=normalized_intervention,
         status=status,
         count=len(trials),
         metadata=_build_result_metadata(
             query_summary={
-                "query": query,
-                "condition": condition,
-                "intervention": intervention,
+                "query": normalized_query,
+                "condition": normalized_condition,
+                "intervention": normalized_intervention,
                 "status": status,
             },
             requested_max_results=max_results,

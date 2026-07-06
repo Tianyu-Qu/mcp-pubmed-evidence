@@ -104,6 +104,11 @@ def test_require_query_rejects_empty_query() -> None:
         _require_query("   ")
 
 
+def test_require_query_rejects_personal_medical_advice() -> None:
+    with pytest.raises(ValueError, match="personal medical advice"):
+        _require_query("diagnose me with Alzheimer disease")
+
+
 @pytest.mark.asyncio
 async def test_get_pubmed_article_rejects_invalid_pmid() -> None:
     with pytest.raises(ValueError, match="pmid must be a non-empty numeric string"):

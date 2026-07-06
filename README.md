@@ -14,6 +14,7 @@ Early development. The first version focuses on PubMed metadata retrieval and ci
 - Search ClinicalTrials.gov by query, condition, intervention, status, and result limit
 - Report result-limit metadata, including requested limits, effective limits, returned counts, and truncation flags
 - Summarize source provenance at the response level so agents can see which databases contributed results
+- Validate biomedical research queries and reject obvious personal medical advice requests
 - Fetch normalized metadata for a PubMed article by PMID
 - Export PubMed records as BibTeX entries
 - Build compact evidence tables for agent workflows
@@ -29,6 +30,8 @@ The goal is not to make medical decisions. The goal is to help agents retrieve a
 ## Safety scope
 
 This server is intended for biomedical research support, literature discovery, citation management, and evidence organization. It is not intended for diagnosis, treatment recommendations, or medical advice.
+
+Tools reject obvious personal medical advice prompts such as requests to diagnose the user, prescribe medication, or decide whether the user should take or stop a treatment. Research-oriented terms such as `diagnosis`, `treatment`, and `therapy` remain valid when used for literature or trial retrieval.
 
 ## Installation
 
@@ -240,6 +243,7 @@ ruff check .
 - PubMed and ClinicalTrials.gov metadata can be incomplete; DOI, abstract, author, journal, publication date, outcomes, locations, or linked PMIDs may be missing.
 - Evidence tables are metadata-oriented in the first version and do not extract PICO elements or judge study quality.
 - Result limits are capped to keep MCP responses manageable; tools report truncation metadata when a request exceeds the configured limit or when a source reports more available records than returned.
+- Query validation is a lightweight safety guardrail, not a complete medical-intent classifier.
 - The server does not provide diagnosis, treatment recommendations, or medical advice.
 - Network access to PubMed may require a proxy depending on the user's environment.
 - Tool outputs should be reviewed by a human before being used in manuscripts, clinical documents, or systematic reviews.
@@ -254,7 +258,7 @@ The next milestone, `v0.3.0 Evidence Table 2.0`, introduces a unified biomedical
 
 ## v0.4.0 Development
 
-The `v0.4.0 Evidence Quality & Safety` milestone adds guardrails for agent-facing biomedical tools. Current improvements add explicit result-limit, truncation, query-summary, and source-provenance metadata so MCP clients can tell where evidence came from and whether a response was capped.
+The `v0.4.0 Evidence Quality & Safety` milestone adds guardrails for agent-facing biomedical tools. Current improvements add explicit result-limit, truncation, query-summary, source-provenance metadata, and lightweight biomedical query validation so MCP clients can tell where evidence came from, whether a response was capped, and whether a request falls outside the research-support scope.
 
 ## Roadmap
 
