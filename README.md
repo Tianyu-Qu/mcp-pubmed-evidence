@@ -30,7 +30,13 @@ python -m venv .venv
 pip install -e .[dev]
 ```
 
-## MCP configuration
+For macOS/Linux, activate the virtual environment with:
+
+```bash
+source .venv/bin/activate
+```
+
+## MCP Configuration
 
 This server uses MCP stdio transport and can be used by any MCP-compatible client.
 
@@ -61,3 +67,78 @@ Claude Desktop example:
   }
 }
 ```
+
+Replace `/path/to/mcp-pubmed-evidence/src` with the absolute path to your local `src` directory. On Windows, it may look like `C:\\path\\to\\mcp-pubmed-evidence\\src`.
+
+If you install the project into the same Python environment used by your MCP client, you can omit `PYTHONPATH`.
+
+If your network requires a proxy, add `HTTP_PROXY` and `HTTPS_PROXY` to `env`:
+
+```json
+"HTTP_PROXY": "http://127.0.0.1:7890",
+"HTTPS_PROXY": "http://127.0.0.1:7890"
+```
+
+## Local Demo
+
+You can test PubMed retrieval without an MCP client:
+
+```powershell
+python examples/search_pubmed.py "Alzheimer disease machine learning" --max-results 3
+```
+
+With a year filter:
+
+```powershell
+python examples/search_pubmed.py "Alzheimer disease machine learning" --max-results 5 --year-from 2022 --year-to 2026
+```
+
+Example output is available in `examples/sample_search_output.json`.
+
+## Tools
+
+### `search_pubmed`
+
+Search PubMed and return normalized article metadata.
+
+Inputs:
+
+- `query`: PubMed search query
+- `max_results`: maximum number of articles to return, capped at 50
+- `year_from`: optional publication year lower bound
+- `year_to`: optional publication year upper bound
+- `article_types`: optional publication type filters, such as `Review` or `Randomized Controlled Trial`
+
+### `get_pubmed_article`
+
+Fetch one PubMed article by PMID.
+
+### `export_bibtex`
+
+Fetch PubMed articles by PMID and export BibTeX entries.
+
+### `build_evidence_table`
+
+Fetch PubMed articles by PMID and return compact evidence table rows.
+
+## Development
+
+Run tests:
+
+```powershell
+pytest
+```
+
+Run linting:
+
+```powershell
+ruff check .
+```
+
+## Roadmap
+
+- Add ClinicalTrials.gov tools
+- Add OpenAlex/Crossref DOI resolution
+- Add richer evidence table extraction
+- Add example MCP client configurations
+- Add local PDF library support

@@ -7,7 +7,7 @@
         "mcp_pubmed_evidence.server"
       ],
       "env": {
-        "PYTHONPATH": "F:\\Healthcare\\mcp-pubmed-evidence\\src"
+        "PYTHONPATH": "/path/to/mcp-pubmed-evidence/src"
       }
     }
   }
