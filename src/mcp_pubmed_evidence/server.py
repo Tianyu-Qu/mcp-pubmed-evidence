@@ -6,6 +6,9 @@ from mcp.server.fastmcp import FastMCP
 
 from .bibtex import articles_to_bibtex
 from .clinicaltrials import (
+    MAX_RESULTS_LIMIT as TRIAL_MAX_RESULTS_LIMIT,
+)
+from .clinicaltrials import (
     get_trial_summary as fetch_trial_summary,
 )
 from .clinicaltrials import (
@@ -15,6 +18,9 @@ from .clinicaltrials import (
     search_trials as search_trials_core,
 )
 from .evidence_table import build_biomedical_evidence_table as build_biomedical_table_core
+from .pubmed import (
+    MAX_RESULTS_LIMIT as PUBMED_MAX_RESULTS_LIMIT,
+)
 from .pubmed import (
     build_evidence_table as build_evidence_table_rows,
 )
@@ -130,7 +136,7 @@ async def build_biomedical_evidence_table(
     intervention: str | None = None,
     max_pubmed_results: int = 10,
     max_trial_results: int = 10,
-) -> list[dict]:
+) -> dict:
     """Build a unified evidence table from PubMed and ClinicalTrials.gov results."""
 
     rows = await build_biomedical_table_core(
@@ -140,7 +146,26 @@ async def build_biomedical_evidence_table(
         max_pubmed_results=max_pubmed_results,
         max_trial_results=max_trial_results,
     )
-    return [row.model_dump(mode="json") for row in rows]
+    return {
+        "metadata": {
+            "requested_max_pubmed_results": max_pubmed_results,
+            "requested_max_trial_results": max_trial_results,
+            "effective_max_pubmed_results": min(
+                max_pubmed_results, PUBMED_MAX_RESULTS_LIMIT
+            ),
+            "effective_max_trial_results": min(
+                max_trial_results, TRIAL_MAX_RESULTS_LIMIT
+            ),
+            "max_allowed_pubmed_results": PUBMED_MAX_RESULTS_LIMIT,
+            "max_allowed_trial_results": TRIAL_MAX_RESULTS_LIMIT,
+            "returned_count": len(rows),
+            "truncated": (
+                max_pubmed_results > PUBMED_MAX_RESULTS_LIMIT
+                or max_trial_results > TRIAL_MAX_RESULTS_LIMIT
+            ),
+        },
+        "rows": [row.model_dump(mode="json") for row in rows],
+    }
 
 
 def main() -> None:

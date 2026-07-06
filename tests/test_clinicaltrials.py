@@ -159,13 +159,19 @@ async def test_search_trials_requires_at_least_one_query_field() -> None:
 @pytest.mark.asyncio
 async def test_search_trials_normalizes_response(monkeypatch: pytest.MonkeyPatch) -> None:
     async def fake_get_json(*args: object, **kwargs: object) -> dict:
-        return {"studies": [TRIAL_STUDY]}
+        return {"studies": [TRIAL_STUDY], "totalCount": 75}
 
     monkeypatch.setattr("mcp_pubmed_evidence.clinicaltrials._get_json", fake_get_json)
 
     result = await search_trials(condition="Alzheimer disease", max_results=1)
 
     assert result.count == 1
+    assert result.metadata.requested_max_results == 1
+    assert result.metadata.effective_max_results == 1
+    assert result.metadata.max_allowed_results == 50
+    assert result.metadata.returned_count == 1
+    assert result.metadata.total_available == 75
+    assert result.metadata.truncated is True
     assert result.trials[0].nct_id == "NCT12345678"
     assert result.trials[0].interventions == ["Semaglutide"]
 

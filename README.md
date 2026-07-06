@@ -12,6 +12,7 @@ Early development. The first version focuses on PubMed metadata retrieval and ci
 
 - Search PubMed with optional year and publication type filters
 - Search ClinicalTrials.gov by query, condition, intervention, status, and result limit
+- Report result-limit metadata, including requested limits, effective limits, returned counts, and truncation flags
 - Fetch normalized metadata for a PubMed article by PMID
 - Export PubMed records as BibTeX entries
 - Build compact evidence tables for agent workflows
@@ -159,6 +160,8 @@ Additional result screenshots:
 
 Search PubMed and return normalized article metadata.
 
+Search responses include `metadata` with `requested_max_results`, `effective_max_results`, `max_allowed_results`, `returned_count`, `total_available` when available, and `truncated`.
+
 Inputs:
 
 - `query`: PubMed search query
@@ -182,6 +185,8 @@ Fetch PubMed articles by PMID and return compact evidence table rows.
 ### `search_trials`
 
 Search ClinicalTrials.gov and return compact trial records.
+
+Search responses include `metadata` with result-limit and truncation information.
 
 Inputs:
 
@@ -211,7 +216,9 @@ Inputs:
 - `max_pubmed_results`: maximum PubMed records to include
 - `max_trial_results`: maximum ClinicalTrials.gov records to include
 
-Returns integrated evidence rows with source type, source ID, title, date/year, study type, status, phase, conditions, interventions, outcomes, DOI, URL, and provenance.
+Returns `metadata` plus integrated evidence `rows`. Rows include source type, source ID, title, date/year, study type, status, phase, conditions, interventions, outcomes, DOI, URL, and provenance.
+
+The metadata includes requested/effective PubMed and ClinicalTrials.gov result limits, maximum allowed limits, returned row count, and whether a requested limit was truncated.
 
 ## Development
 
@@ -231,6 +238,7 @@ ruff check .
 
 - PubMed and ClinicalTrials.gov metadata can be incomplete; DOI, abstract, author, journal, publication date, outcomes, locations, or linked PMIDs may be missing.
 - Evidence tables are metadata-oriented in the first version and do not extract PICO elements or judge study quality.
+- Result limits are capped to keep MCP responses manageable; tools report truncation metadata when a request exceeds the configured limit or when a source reports more available records than returned.
 - The server does not provide diagnosis, treatment recommendations, or medical advice.
 - Network access to PubMed may require a proxy depending on the user's environment.
 - Tool outputs should be reviewed by a human before being used in manuscripts, clinical documents, or systematic reviews.
@@ -242,6 +250,11 @@ See [CHANGELOG.md](CHANGELOG.md) for v0.1.0 release notes.
 ## v0.3.0 Development
 
 The next milestone, `v0.3.0 Evidence Table 2.0`, introduces a unified biomedical evidence row schema for combining PubMed articles and ClinicalTrials.gov trial records. The `build_biomedical_evidence_table` MCP tool now returns integrated evidence rows with source provenance.
+
+## v0.4.0 Development
+
+The `v0.4.0 Evidence Quality & Safety` milestone adds guardrails for agent-facing biomedical tools. The first improvement adds explicit result-limit and truncation metadata so MCP clients can tell when a response was capped.
+
 ## Roadmap
 
 - Expand ClinicalTrials.gov result fields and examples

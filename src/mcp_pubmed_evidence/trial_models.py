@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field, HttpUrl
 
+from .models import ResultMetadata
+
 
 class TrialOutcome(BaseModel):
     """Normalized clinical trial outcome."""
@@ -47,6 +49,7 @@ class TrialSearchResult(BaseModel):
     intervention: str | None = None
     status: str | None = None
     count: int
+    metadata: ResultMetadata
     trials: list[TrialSearchRecord]
 
 

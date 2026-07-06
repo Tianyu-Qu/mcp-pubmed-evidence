@@ -3,6 +3,14 @@
   "intervention": "GLP-1",
   "status": null,
   "count": 1,
+  "metadata": {
+    "requested_max_results": 1,
+    "effective_max_results": 1,
+    "max_allowed_results": 50,
+    "returned_count": 1,
+    "total_available": 12,
+    "truncated": true
+  },
   "trials": [
     {
       "nct_id": "NCT12345678",

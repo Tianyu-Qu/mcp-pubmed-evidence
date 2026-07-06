@@ -5,6 +5,17 @@ from __future__ import annotations
 from pydantic import BaseModel, Field, HttpUrl
 
 
+class ResultMetadata(BaseModel):
+    """Metadata describing result limits and truncation."""
+
+    requested_max_results: int
+    effective_max_results: int
+    max_allowed_results: int
+    returned_count: int
+    total_available: int | None = None
+    truncated: bool = False
+
+
 class PubMedArticle(BaseModel):
     """Normalized metadata for one PubMed article."""
 
@@ -25,6 +36,7 @@ class PubMedSearchResult(BaseModel):
 
     query: str
     count: int
+    metadata: ResultMetadata
     articles: list[PubMedArticle]
 
 

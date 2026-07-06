@@ -12,6 +12,7 @@ from collections.abc import Iterable
 
 import httpx
 
+from .models import ResultMetadata
 from .pubmed import PubMedError, get_pubmed_article
 from .trial_models import (
     TrialOutcome,
@@ -45,6 +46,26 @@ def _normalize_max_results(max_results: int) -> int:
     return min(max_results, MAX_RESULTS_LIMIT)
 
 
+def _build_result_metadata(
+    *,
+    requested_max_results: int,
+    effective_max_results: int,
+    returned_count: int,
+    total_available: int | None = None,
+) -> ResultMetadata:
+    return ResultMetadata(
+        requested_max_results=requested_max_results,
+        effective_max_results=effective_max_results,
+        max_allowed_results=MAX_RESULTS_LIMIT,
+        returned_count=returned_count,
+        total_available=total_available,
+        truncated=(
+            requested_max_results > effective_max_results
+            or (total_available is not None and total_available > returned_count)
+        ),
+    )
+
+
 def _require_nct_id(nct_id: str) -> str:
     normalized = nct_id.strip().upper()
     if not re.fullmatch(r"NCT\d{8}", normalized):
@@ -64,12 +85,13 @@ async def search_trials(
     if not any(_clean_text(value) for value in [query, condition, intervention]):
         raise ValueError("at least one of query, condition, or intervention must be provided")
 
+    effective_max_results = _normalize_max_results(max_results)
     params = _build_search_params(
         query=query,
         condition=condition,
         intervention=intervention,
         status=status,
-        max_results=_normalize_max_results(max_results),
+        max_results=effective_max_results,
     )
 
     async with httpx.AsyncClient(
@@ -84,12 +106,19 @@ async def search_trials(
         )
 
     trials = [_parse_search_record(study) for study in payload.get("studies", [])]
+    total_available = _parse_total_available(payload)
     return TrialSearchResult(
         query=query,
         condition=condition,
         intervention=intervention,
         status=status,
         count=len(trials),
+        metadata=_build_result_metadata(
+            requested_max_results=max_results,
+            effective_max_results=effective_max_results,
+            returned_count=len(trials),
+            total_available=total_available,
+        ),
         trials=trials,
     )
 
@@ -151,6 +180,16 @@ def _build_search_params(
     if status_text := _clean_text(status):
         params["filter.overallStatus"] = status_text
     return params
+
+
+def _parse_total_available(payload: dict) -> int | None:
+    for key in ["totalCount", "total_count", "count"]:
+        value = payload.get(key)
+        if isinstance(value, int):
+            return value
+        if isinstance(value, str) and value.isdigit():
+            return int(value)
+    return None
 
 
 async def _get_json(

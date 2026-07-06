@@ -14,6 +14,7 @@ from mcp_pubmed_evidence.pubmed import (
     _search_pmids,
     build_evidence_table,
     get_pubmed_article,
+    search_pubmed,
 )
 
 SAMPLE_XML = """<?xml version="1.0" ?>
@@ -111,6 +112,36 @@ async def test_get_pubmed_article_rejects_invalid_pmid() -> None:
 
 def test_normalize_max_results_caps_large_values() -> None:
     assert _normalize_max_results(500) == 50
+
+
+@pytest.mark.asyncio
+async def test_search_pubmed_reports_truncation_metadata(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    article = _parse_pubmed_xml(SAMPLE_XML)[0]
+
+    async def fake_search_pmids(
+        client: httpx.AsyncClient, query: str, max_results: int
+    ) -> tuple[list[str], int]:
+        assert max_results == 50
+        return ["12345678"], 200
+
+    async def fake_fetch_articles(
+        client: httpx.AsyncClient, pmids: list[str]
+    ) -> list[object]:
+        return [article]
+
+    monkeypatch.setattr("mcp_pubmed_evidence.pubmed._search_pmids", fake_search_pmids)
+    monkeypatch.setattr("mcp_pubmed_evidence.pubmed._fetch_articles", fake_fetch_articles)
+
+    result = await search_pubmed("Alzheimer disease", max_results=500)
+
+    assert result.metadata.requested_max_results == 500
+    assert result.metadata.effective_max_results == 50
+    assert result.metadata.max_allowed_results == 50
+    assert result.metadata.returned_count == 1
+    assert result.metadata.total_available == 200
+    assert result.metadata.truncated is True
 
 
 def test_build_query_adds_year_and_article_type_filters() -> None:

@@ -8,7 +8,7 @@ from collections.abc import Iterable
 
 import httpx
 
-from .models import EvidenceTableRow, PubMedArticle, PubMedSearchResult
+from .models import EvidenceTableRow, PubMedArticle, PubMedSearchResult, ResultMetadata
 
 NCBI_EUTILS_BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 DEFAULT_TIMEOUT = 20.0
@@ -39,6 +39,26 @@ def _normalize_max_results(max_results: int) -> int:
     return min(max_results, MAX_RESULTS_LIMIT)
 
 
+def _build_result_metadata(
+    *,
+    requested_max_results: int,
+    effective_max_results: int,
+    returned_count: int,
+    total_available: int | None = None,
+) -> ResultMetadata:
+    return ResultMetadata(
+        requested_max_results=requested_max_results,
+        effective_max_results=effective_max_results,
+        max_allowed_results=MAX_RESULTS_LIMIT,
+        returned_count=returned_count,
+        total_available=total_available,
+        truncated=(
+            requested_max_results > effective_max_results
+            or (total_available is not None and total_available > returned_count)
+        ),
+    )
+
+
 async def search_pubmed(
     query: str,
     max_results: int = 10,
@@ -57,10 +77,20 @@ async def search_pubmed(
     retmax = _normalize_max_results(max_results)
 
     async with httpx.AsyncClient(timeout=DEFAULT_TIMEOUT) as client:
-        pmids = await _search_pmids(client, normalized_query, retmax)
+        pmids, total_available = await _search_pmids(client, normalized_query, retmax)
         articles = await _fetch_articles(client, pmids) if pmids else []
 
-    return PubMedSearchResult(query=query, count=len(articles), articles=articles)
+    return PubMedSearchResult(
+        query=query,
+        count=len(articles),
+        metadata=_build_result_metadata(
+            requested_max_results=max_results,
+            effective_max_results=retmax,
+            returned_count=len(articles),
+            total_available=total_available,
+        ),
+        articles=articles,
+    )
 
 
 async def get_pubmed_article(pmid: str) -> PubMedArticle:
@@ -117,7 +147,9 @@ def _build_query(
     return " AND ".join(parts)
 
 
-async def _search_pmids(client: httpx.AsyncClient, query: str, max_results: int) -> list[str]:
+async def _search_pmids(
+    client: httpx.AsyncClient, query: str, max_results: int
+) -> tuple[list[str], int | None]:
     try:
         response = await client.get(
             f"{NCBI_EUTILS_BASE_URL}/esearch.fcgi",
@@ -140,7 +172,9 @@ async def _search_pmids(client: httpx.AsyncClient, query: str, max_results: int)
         raise PubMedError("PubMed search request failed") from exc
 
     payload = response.json()
-    return payload.get("esearchresult", {}).get("idlist", [])
+    result = payload.get("esearchresult", {})
+    total_count = result.get("count")
+    return result.get("idlist", []), int(total_count) if str(total_count).isdigit() else None
 
 
 async def _fetch_articles(client: httpx.AsyncClient, pmids: list[str]) -> list[PubMedArticle]:
