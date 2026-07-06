@@ -16,6 +16,12 @@ Early development. The first version focuses on PubMed metadata retrieval and ci
 - Build compact evidence tables for agent workflows
 - Return structured fields such as PMID, title, authors, journal, year, DOI, abstract, article types, and PubMed URL
 
+## Why MCP for Biomedical Evidence
+
+Biomedical research agents need reliable access to current, source-backed evidence. A plain chatbot can answer from model memory, but it may miss recent papers, blur study types, or provide weak citations. This MCP server gives agents a controlled tool layer for PubMed retrieval, structured metadata, citation export, and evidence-table generation.
+
+The goal is not to make medical decisions. The goal is to help agents retrieve and organize biomedical literature with provenance, stable schemas, and clear source URLs.
+
 ## Safety scope
 
 This server is intended for biomedical research support, literature discovery, citation management, and evidence organization. It is not intended for diagnosis, treatment recommendations, or medical advice.
@@ -95,6 +101,21 @@ python examples/search_pubmed.py "Alzheimer disease machine learning" --max-resu
 
 Example output is available in `examples/sample_search_output.json`.
 
+You can also verify the MCP stdio server locally by listing its tools:
+
+```powershell
+python examples/mcp_list_tools.py
+```
+
+Expected tools:
+
+```text
+search_pubmed
+get_pubmed_article
+export_bibtex
+build_evidence_table
+```
+
 ## Tools
 
 ### `search_pubmed`
@@ -134,6 +155,14 @@ Run linting:
 ```powershell
 ruff check .
 ```
+
+## Limitations
+
+- PubMed metadata can be incomplete; DOI, abstract, author, journal, or publication date may be missing.
+- Evidence tables are metadata-oriented in the first version and do not extract PICO elements or judge study quality.
+- The server does not provide diagnosis, treatment recommendations, or medical advice.
+- Network access to PubMed may require a proxy depending on the user's environment.
+- Tool outputs should be reviewed by a human before being used in manuscripts, clinical documents, or systematic reviews.
 
 ## Roadmap
 

@@ -1,0 +1,10 @@
+{
+  "command": "python",
+  "args": [
+    "-m",
+    "mcp_pubmed_evidence.server"
+  ],
+  "env": {
+    "PYTHONPATH": "/path/to/mcp-pubmed-evidence/src"
+  }
+}

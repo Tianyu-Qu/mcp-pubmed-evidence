@@ -1,14 +1,19 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
+import httpx
 import pytest
 
 from mcp_pubmed_evidence.bibtex import article_to_bibtex
 from mcp_pubmed_evidence.pubmed import (
+    PubMedError,
     _build_query,
+    _fetch_articles,
     _normalize_max_results,
     _parse_pubmed_xml,
     _require_query,
+    _search_pmids,
     build_evidence_table,
+    get_pubmed_article,
 )
 
 SAMPLE_XML = """<?xml version="1.0" ?>
@@ -57,10 +62,51 @@ SAMPLE_XML = """<?xml version="1.0" ?>
 </PubmedArticleSet>
 """
 
+MISSING_OPTIONAL_XML = """<?xml version="1.0" ?>
+<PubmedArticleSet>
+  <PubmedArticle>
+    <MedlineCitation>
+      <PMID>87654321</PMID>
+      <Article>
+        <Journal>
+          <JournalIssue>
+            <PubDate>
+              <MedlineDate>Winter 1999</MedlineDate>
+            </PubDate>
+          </JournalIssue>
+        </Journal>
+        <ArticleTitle>Article without optional metadata</ArticleTitle>
+      </Article>
+    </MedlineCitation>
+  </PubmedArticle>
+</PubmedArticleSet>
+"""
+
+EMPTY_XML = """<?xml version="1.0" ?>
+<PubmedArticleSet />
+"""
+
+
+class TimeoutClient:
+    async def get(self, *args: object, **kwargs: object) -> httpx.Response:
+        raise httpx.TimeoutException("timeout")
+
+
+class HttpErrorClient:
+    async def get(self, *args: object, **kwargs: object) -> httpx.Response:
+        request = httpx.Request("GET", "https://example.test")
+        return httpx.Response(500, request=request)
+
 
 def test_require_query_rejects_empty_query() -> None:
     with pytest.raises(ValueError, match="query must not be empty"):
         _require_query("   ")
+
+
+@pytest.mark.asyncio
+async def test_get_pubmed_article_rejects_invalid_pmid() -> None:
+    with pytest.raises(ValueError, match="pmid must be a non-empty numeric string"):
+        await get_pubmed_article("not-a-pmid")
 
 
 def test_normalize_max_results_caps_large_values() -> None:
@@ -82,6 +128,11 @@ def test_build_query_adds_year_and_article_type_filters() -> None:
     assert "Review" in query
 
 
+def test_build_query_rejects_invalid_year_range() -> None:
+    with pytest.raises(ValueError, match="year_from"):
+        _build_query("Alzheimer", year_from=2025, year_to=2020, article_types=None)
+
+
 def test_parse_pubmed_xml_normalizes_article() -> None:
     articles = _parse_pubmed_xml(SAMPLE_XML)
 
@@ -97,6 +148,29 @@ def test_parse_pubmed_xml_normalizes_article() -> None:
     assert "BACKGROUND: Risk prediction matters." in article.abstract
     assert "Validation Study" in article.article_types
     assert str(article.pubmed_url) == "https://pubmed.ncbi.nlm.nih.gov/12345678/"
+
+
+def test_parse_pubmed_xml_handles_missing_optional_fields() -> None:
+    article = _parse_pubmed_xml(MISSING_OPTIONAL_XML)[0]
+
+    assert article.pmid == "87654321"
+    assert article.title == "Article without optional metadata"
+    assert article.authors == []
+    assert article.journal is None
+    assert article.year == 1999
+    assert article.publication_date == "Winter 1999"
+    assert article.article_types == []
+    assert article.doi is None
+    assert article.abstract is None
+
+
+def test_parse_pubmed_xml_returns_empty_list_for_no_results() -> None:
+    assert _parse_pubmed_xml(EMPTY_XML) == []
+
+
+def test_parse_pubmed_xml_raises_on_invalid_xml() -> None:
+    with pytest.raises(PubMedError, match="invalid XML"):
+        _parse_pubmed_xml("<not-valid")
 
 
 def test_build_evidence_table_returns_compact_rows() -> None:
@@ -119,3 +193,28 @@ def test_article_to_bibtex_includes_core_fields() -> None:
     assert "author = {Jane Smith and Wei Chen}" in bibtex
     assert "doi = {10.1000/example.doi}" in bibtex
     assert "pmid = {12345678}" in bibtex
+
+
+@pytest.mark.asyncio
+async def test_get_pubmed_article_raises_when_no_article_found(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    async def fake_fetch_articles(client: httpx.AsyncClient, pmids: list[str]) -> list[object]:
+        return []
+
+    monkeypatch.setattr("mcp_pubmed_evidence.pubmed._fetch_articles", fake_fetch_articles)
+
+    with pytest.raises(PubMedError, match="No PubMed article found"):
+        await get_pubmed_article("12345678")
+
+
+@pytest.mark.asyncio
+async def test_search_pmids_wraps_timeout() -> None:
+    with pytest.raises(PubMedError, match="timed out"):
+        await _search_pmids(TimeoutClient(), "Alzheimer", 1)  # type: ignore[arg-type]
+
+
+@pytest.mark.asyncio
+async def test_fetch_articles_wraps_http_error() -> None:
+    with pytest.raises(PubMedError, match="HTTP 500"):
+        await _fetch_articles(HttpErrorClient(), ["12345678"])  # type: ignore[arg-type]

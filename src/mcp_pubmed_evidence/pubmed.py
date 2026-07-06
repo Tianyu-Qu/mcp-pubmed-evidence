@@ -118,17 +118,27 @@ def _build_query(
 
 
 async def _search_pmids(client: httpx.AsyncClient, query: str, max_results: int) -> list[str]:
-    response = await client.get(
-        f"{NCBI_EUTILS_BASE_URL}/esearch.fcgi",
-        params={
-            "db": "pubmed",
-            "term": query,
-            "retmode": "json",
-            "retmax": str(max_results),
-            "sort": "relevance",
-        },
-    )
-    response.raise_for_status()
+    try:
+        response = await client.get(
+            f"{NCBI_EUTILS_BASE_URL}/esearch.fcgi",
+            params={
+                "db": "pubmed",
+                "term": query,
+                "retmode": "json",
+                "retmax": str(max_results),
+                "sort": "relevance",
+            },
+        )
+        response.raise_for_status()
+    except httpx.TimeoutException as exc:
+        raise PubMedError("PubMed search request timed out") from exc
+    except httpx.HTTPStatusError as exc:
+        raise PubMedError(
+            f"PubMed search request failed with HTTP {exc.response.status_code}"
+        ) from exc
+    except httpx.RequestError as exc:
+        raise PubMedError("PubMed search request failed") from exc
+
     payload = response.json()
     return payload.get("esearchresult", {}).get("idlist", [])
 
@@ -137,15 +147,25 @@ async def _fetch_articles(client: httpx.AsyncClient, pmids: list[str]) -> list[P
     if not pmids:
         return []
 
-    response = await client.get(
-        f"{NCBI_EUTILS_BASE_URL}/efetch.fcgi",
-        params={
-            "db": "pubmed",
-            "id": ",".join(pmids),
-            "retmode": "xml",
-        },
-    )
-    response.raise_for_status()
+    try:
+        response = await client.get(
+            f"{NCBI_EUTILS_BASE_URL}/efetch.fcgi",
+            params={
+                "db": "pubmed",
+                "id": ",".join(pmids),
+                "retmode": "xml",
+            },
+        )
+        response.raise_for_status()
+    except httpx.TimeoutException as exc:
+        raise PubMedError("PubMed fetch request timed out") from exc
+    except httpx.HTTPStatusError as exc:
+        raise PubMedError(
+            f"PubMed fetch request failed with HTTP {exc.response.status_code}"
+        ) from exc
+    except httpx.RequestError as exc:
+        raise PubMedError("PubMed fetch request failed") from exc
+
     return _parse_pubmed_xml(response.text)
 
 
