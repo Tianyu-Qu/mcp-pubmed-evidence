@@ -116,6 +116,18 @@ export_bibtex
 build_evidence_table
 ```
 
+## Demo
+
+Verified with Cursor as an MCP client. Cursor connected to the `pubmed-evidence` server and called the `search_pubmed` tool for the query `Alzheimer disease machine learning` with `max_results=3`.
+
+![Cursor MCP demo showing search_pubmed invocation](assets/cursor-mcp-demo-1.png)
+
+Additional result screenshots:
+
+![Cursor MCP demo results 1](assets/cursor-mcp-demo-2.png)
+
+![Cursor MCP demo results 2](assets/cursor-mcp-demo-3.png)
+
 ## Tools
 
 ### `search_pubmed`
