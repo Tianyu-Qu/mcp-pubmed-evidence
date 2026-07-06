@@ -1,0 +1,21 @@
+{
+  "query": "Alzheimer disease machine learning",
+  "count": 1,
+  "articles": [
+    {
+      "pmid": "33803217",
+      "title": "Machine Learning and Novel Biomarkers for the Diagnosis of Alzheimer's Disease.",
+      "authors": [],
+      "journal": "International Journal of Molecular Sciences",
+      "year": 2021,
+      "publication_date": "2021 Mar 24",
+      "article_types": [
+        "Journal Article",
+        "Review"
+      ],
+      "doi": "10.3390/ijms22073305",
+      "abstract": "Example output from search_pubmed. Abstract text may be omitted or shortened in documentation examples.",
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/33803217/"
+    }
+  ]
+}

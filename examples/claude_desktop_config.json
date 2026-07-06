@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "pubmed-evidence": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp_pubmed_evidence.server"
+      ],
+      "env": {
+        "PYTHONPATH": "F:\\Healthcare\\mcp-pubmed-evidence\\src",
+        "HTTPS_PROXY": "http://127.0.0.1:7890",
+        "HTTP_PROXY": "http://127.0.0.1:7890"
+      }
+    }
+  }
+}
