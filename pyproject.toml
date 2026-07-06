@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mcp-pubmed-evidence"
+version = "0.1.0"
+description = "MCP server for reliable PubMed literature retrieval, BibTeX export, and evidence table generation for biomedical research agents."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Tianyu Qu" }
+]
+dependencies = [
+  "httpx>=0.27.0",
+  "mcp>=1.0.0",
+  "pydantic>=2.7.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0.0",
+  "pytest-asyncio>=0.23.0",
+  "respx>=0.21.0",
+  "ruff>=0.5.0"
+]
+
+[project.scripts]
+mcp-pubmed-evidence = "mcp_pubmed_evidence.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mcp_pubmed_evidence"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
