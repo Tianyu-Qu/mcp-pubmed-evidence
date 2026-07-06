@@ -208,6 +208,9 @@ ruff check .
 
 See [CHANGELOG.md](CHANGELOG.md) for v0.1.0 release notes.
 
+## v0.3.0 Development
+
+The next milestone, `v0.3.0 Evidence Table 2.0`, introduces a unified biomedical evidence row schema for combining PubMed articles and ClinicalTrials.gov trial records. The first step is schema and conversion support; the MCP tool for building integrated evidence tables will be added separately.
 ## Roadmap
 
 - Expand ClinicalTrials.gov result fields and examples
