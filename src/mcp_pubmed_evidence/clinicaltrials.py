@@ -48,12 +48,16 @@ def _normalize_max_results(max_results: int) -> int:
 
 def _build_result_metadata(
     *,
+    query_summary: dict[str, object],
     requested_max_results: int,
     effective_max_results: int,
     returned_count: int,
     total_available: int | None = None,
 ) -> ResultMetadata:
     return ResultMetadata(
+        source_name="ClinicalTrials.gov",
+        source_url="https://clinicaltrials.gov/",
+        query_summary=query_summary,
         requested_max_results=requested_max_results,
         effective_max_results=effective_max_results,
         max_allowed_results=MAX_RESULTS_LIMIT,
@@ -114,6 +118,12 @@ async def search_trials(
         status=status,
         count=len(trials),
         metadata=_build_result_metadata(
+            query_summary={
+                "query": query,
+                "condition": condition,
+                "intervention": intervention,
+                "status": status,
+            },
             requested_max_results=max_results,
             effective_max_results=effective_max_results,
             returned_count=len(trials),

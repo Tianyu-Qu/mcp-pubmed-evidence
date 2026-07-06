@@ -137,6 +137,10 @@ async def test_search_pubmed_reports_truncation_metadata(
     result = await search_pubmed("Alzheimer disease", max_results=500)
 
     assert result.metadata.requested_max_results == 500
+    assert result.metadata.source_name == "PubMed"
+    assert result.metadata.source_url == "https://pubmed.ncbi.nlm.nih.gov/"
+    assert result.metadata.query_summary["query"] == "Alzheimer disease"
+    assert result.metadata.query_summary["normalized_query"] == "Alzheimer disease"
     assert result.metadata.effective_max_results == 50
     assert result.metadata.max_allowed_results == 50
     assert result.metadata.returned_count == 1

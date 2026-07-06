@@ -2,6 +2,15 @@
   "query": "Alzheimer disease machine learning",
   "count": 1,
   "metadata": {
+    "source_name": "PubMed",
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/",
+    "query_summary": {
+      "query": "Alzheimer disease machine learning",
+      "normalized_query": "Alzheimer disease machine learning",
+      "year_from": null,
+      "year_to": null,
+      "article_types": []
+    },
     "requested_max_results": 3,
     "effective_max_results": 3,
     "max_allowed_results": 50,

@@ -166,6 +166,9 @@ async def test_search_trials_normalizes_response(monkeypatch: pytest.MonkeyPatch
     result = await search_trials(condition="Alzheimer disease", max_results=1)
 
     assert result.count == 1
+    assert result.metadata.source_name == "ClinicalTrials.gov"
+    assert result.metadata.source_url == "https://clinicaltrials.gov/"
+    assert result.metadata.query_summary["condition"] == "Alzheimer disease"
     assert result.metadata.requested_max_results == 1
     assert result.metadata.effective_max_results == 1
     assert result.metadata.max_allowed_results == 50

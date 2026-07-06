@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections import Counter
+
 from mcp.server.fastmcp import FastMCP
 
 from .bibtex import articles_to_bibtex
@@ -17,6 +19,7 @@ from .clinicaltrials import (
 from .clinicaltrials import (
     search_trials as search_trials_core,
 )
+from .evidence_models import BiomedicalEvidenceRow
 from .evidence_table import build_biomedical_evidence_table as build_biomedical_table_core
 from .pubmed import (
     MAX_RESULTS_LIMIT as PUBMED_MAX_RESULTS_LIMIT,
@@ -32,6 +35,27 @@ from .pubmed import (
 )
 
 mcp = FastMCP("mcp-pubmed-evidence")
+
+
+def _build_source_summary(rows: list[BiomedicalEvidenceRow]) -> list[dict]:
+    """Summarize row provenance at the response level."""
+
+    grouped: dict[str, dict] = {}
+    for row in rows:
+        source_name = row.provenance.source_name
+        summary = grouped.setdefault(
+            source_name,
+            {
+                "source_name": source_name,
+                "source_type": row.source_type,
+                "source_url": str(row.provenance.source_url),
+                "count": 0,
+                "source_ids": [],
+            },
+        )
+        summary["count"] += 1
+        summary["source_ids"].append(row.source_id)
+    return list(grouped.values())
 
 
 @mcp.tool()
@@ -146,8 +170,16 @@ async def build_biomedical_evidence_table(
         max_pubmed_results=max_pubmed_results,
         max_trial_results=max_trial_results,
     )
+    source_counts = Counter(row.source_type for row in rows)
     return {
         "metadata": {
+            "query_summary": {
+                "query": query,
+                "condition": condition,
+                "intervention": intervention,
+            },
+            "sources_used": _build_source_summary(rows),
+            "source_counts": dict(source_counts),
             "requested_max_pubmed_results": max_pubmed_results,
             "requested_max_trial_results": max_trial_results,
             "effective_max_pubmed_results": min(

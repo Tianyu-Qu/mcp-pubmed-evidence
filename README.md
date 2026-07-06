@@ -13,6 +13,7 @@ Early development. The first version focuses on PubMed metadata retrieval and ci
 - Search PubMed with optional year and publication type filters
 - Search ClinicalTrials.gov by query, condition, intervention, status, and result limit
 - Report result-limit metadata, including requested limits, effective limits, returned counts, and truncation flags
+- Summarize source provenance at the response level so agents can see which databases contributed results
 - Fetch normalized metadata for a PubMed article by PMID
 - Export PubMed records as BibTeX entries
 - Build compact evidence tables for agent workflows
@@ -160,7 +161,7 @@ Additional result screenshots:
 
 Search PubMed and return normalized article metadata.
 
-Search responses include `metadata` with `requested_max_results`, `effective_max_results`, `max_allowed_results`, `returned_count`, `total_available` when available, and `truncated`.
+Search responses include `metadata` with `source_name`, `source_url`, `query_summary`, `requested_max_results`, `effective_max_results`, `max_allowed_results`, `returned_count`, `total_available` when available, and `truncated`.
 
 Inputs:
 
@@ -186,7 +187,7 @@ Fetch PubMed articles by PMID and return compact evidence table rows.
 
 Search ClinicalTrials.gov and return compact trial records.
 
-Search responses include `metadata` with result-limit and truncation information.
+Search responses include `metadata` with source provenance, query summary, result-limit, and truncation information.
 
 Inputs:
 
@@ -218,7 +219,7 @@ Inputs:
 
 Returns `metadata` plus integrated evidence `rows`. Rows include source type, source ID, title, date/year, study type, status, phase, conditions, interventions, outcomes, DOI, URL, and provenance.
 
-The metadata includes requested/effective PubMed and ClinicalTrials.gov result limits, maximum allowed limits, returned row count, and whether a requested limit was truncated.
+The metadata includes query summary, sources used, source counts, requested/effective PubMed and ClinicalTrials.gov result limits, maximum allowed limits, returned row count, and whether a requested limit was truncated.
 
 ## Development
 
@@ -253,7 +254,7 @@ The next milestone, `v0.3.0 Evidence Table 2.0`, introduces a unified biomedical
 
 ## v0.4.0 Development
 
-The `v0.4.0 Evidence Quality & Safety` milestone adds guardrails for agent-facing biomedical tools. The first improvement adds explicit result-limit and truncation metadata so MCP clients can tell when a response was capped.
+The `v0.4.0 Evidence Quality & Safety` milestone adds guardrails for agent-facing biomedical tools. Current improvements add explicit result-limit, truncation, query-summary, and source-provenance metadata so MCP clients can tell where evidence came from and whether a response was capped.
 
 ## Roadmap
 

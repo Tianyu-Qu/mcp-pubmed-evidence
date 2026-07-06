@@ -4,6 +4,14 @@
   "status": null,
   "count": 1,
   "metadata": {
+    "source_name": "ClinicalTrials.gov",
+    "source_url": "https://clinicaltrials.gov/",
+    "query_summary": {
+      "query": null,
+      "condition": "Alzheimer disease",
+      "intervention": "GLP-1",
+      "status": null
+    },
     "requested_max_results": 1,
     "effective_max_results": 1,
     "max_allowed_results": 50,

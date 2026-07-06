@@ -76,6 +76,21 @@ async def test_build_biomedical_evidence_table_returns_limit_metadata(
     )
 
     assert result["metadata"]["requested_max_pubmed_results"] == 500
+    assert result["metadata"]["query_summary"] == {
+        "query": "Alzheimer disease",
+        "condition": None,
+        "intervention": None,
+    }
+    assert result["metadata"]["source_counts"] == {"pubmed": 1}
+    assert result["metadata"]["sources_used"] == [
+        {
+            "source_name": "PubMed",
+            "source_type": "pubmed",
+            "source_url": "https://pubmed.ncbi.nlm.nih.gov/12345678/",
+            "count": 1,
+            "source_ids": ["12345678"],
+        }
+    ]
     assert result["metadata"]["effective_max_pubmed_results"] == 50
     assert result["metadata"]["max_allowed_pubmed_results"] == 50
     assert result["metadata"]["returned_count"] == 1

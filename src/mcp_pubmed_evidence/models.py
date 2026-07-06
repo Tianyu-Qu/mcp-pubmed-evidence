@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel, Field, HttpUrl
 
 
 class ResultMetadata(BaseModel):
     """Metadata describing result limits and truncation."""
 
+    source_name: str | None = None
+    source_url: str | None = None
+    query_summary: dict[str, Any] = Field(default_factory=dict)
     requested_max_results: int
     effective_max_results: int
     max_allowed_results: int

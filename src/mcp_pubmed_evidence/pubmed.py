@@ -41,12 +41,16 @@ def _normalize_max_results(max_results: int) -> int:
 
 def _build_result_metadata(
     *,
+    query_summary: dict[str, object],
     requested_max_results: int,
     effective_max_results: int,
     returned_count: int,
     total_available: int | None = None,
 ) -> ResultMetadata:
     return ResultMetadata(
+        source_name="PubMed",
+        source_url="https://pubmed.ncbi.nlm.nih.gov/",
+        query_summary=query_summary,
         requested_max_results=requested_max_results,
         effective_max_results=effective_max_results,
         max_allowed_results=MAX_RESULTS_LIMIT,
@@ -84,6 +88,13 @@ async def search_pubmed(
         query=query,
         count=len(articles),
         metadata=_build_result_metadata(
+            query_summary={
+                "query": query,
+                "normalized_query": normalized_query,
+                "year_from": year_from,
+                "year_to": year_to,
+                "article_types": article_types or [],
+            },
             requested_max_results=max_results,
             effective_max_results=retmax,
             returned_count=len(articles),
