@@ -32,63 +32,32 @@ pip install -e .[dev]
 
 ## MCP configuration
 
-Example stdio configuration:
+This server uses MCP stdio transport and can be used by any MCP-compatible client.
+
+Generic stdio configuration:
+
+```json
+{
+  "command": "python",
+  "args": ["-m", "mcp_pubmed_evidence.server"],
+  "env": {
+    "PYTHONPATH": "/path/to/mcp-pubmed-evidence/src"
+  }
+}
+```
+
+Claude Desktop example:
 
 ```json
 {
   "mcpServers": {
     "pubmed-evidence": {
       "command": "python",
-      "args": ["-m", "mcp_pubmed_evidence.server"]
+      "args": ["-m", "mcp_pubmed_evidence.server"],
+      "env": {
+        "PYTHONPATH": "/path/to/mcp-pubmed-evidence/src"
+      }
     }
   }
 }
 ```
-
-## Tools
-
-### `search_pubmed`
-
-Search PubMed and return normalized article metadata.
-
-Inputs:
-
-- `query`: PubMed search query
-- `max_results`: maximum number of articles to return, capped at 50
-- `year_from`: optional publication year lower bound
-- `year_to`: optional publication year upper bound
-- `article_types`: optional publication type filters, such as `Review` or `Randomized Controlled Trial`
-
-### `get_pubmed_article`
-
-Fetch one PubMed article by PMID.
-
-### `export_bibtex`
-
-Fetch PubMed articles by PMID and export BibTeX entries.
-
-### `build_evidence_table`
-
-Fetch PubMed articles by PMID and return compact evidence table rows.
-
-## Development
-
-Run tests:
-
-```powershell
-pytest
-```
-
-Run linting:
-
-```powershell
-ruff check .
-```
-
-## Roadmap
-
-- Add ClinicalTrials.gov tools
-- Add OpenAlex/Crossref DOI resolution
-- Add richer evidence table extraction
-- Add example MCP client configurations
-- Add local PDF library support
