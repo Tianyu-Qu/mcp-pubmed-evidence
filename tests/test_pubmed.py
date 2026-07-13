@@ -185,6 +185,7 @@ def test_parse_pubmed_xml_normalizes_article() -> None:
     assert article.year == 2024
     assert article.publication_date == "2024 Jan"
     assert article.doi == "10.1000/example.doi"
+    assert article.citation_warnings == []
     assert "BACKGROUND: Risk prediction matters." in article.abstract
     assert "Validation Study" in article.article_types
     assert str(article.pubmed_url) == "https://pubmed.ncbi.nlm.nih.gov/12345678/"
@@ -202,6 +203,7 @@ def test_parse_pubmed_xml_handles_missing_optional_fields() -> None:
     assert article.article_types == []
     assert article.doi is None
     assert article.abstract is None
+    assert article.citation_warnings == ["missing DOI", "missing authors", "missing journal"]
 
 
 def test_parse_pubmed_xml_returns_empty_list_for_no_results() -> None:
@@ -221,6 +223,7 @@ def test_build_evidence_table_returns_compact_rows() -> None:
     assert len(rows) == 1
     assert rows[0].pmid == "12345678"
     assert rows[0].doi == "10.1000/example.doi"
+    assert rows[0].citation_warnings == []
 
 
 def test_article_to_bibtex_includes_core_fields() -> None:

@@ -65,6 +65,7 @@ def pubmed_article_to_evidence_row(article: PubMedArticle) -> BiomedicalEvidence
             pmid=article.pmid,
             nct_id=None,
         ),
+        citation_warnings=article.citation_warnings,
     )
 
 
@@ -94,6 +95,7 @@ def trial_to_evidence_row(trial: TrialSearchRecord | TrialSummary) -> Biomedical
             pmid=None,
             nct_id=trial.nct_id,
         ),
+        citation_warnings=[],
     )
 
 

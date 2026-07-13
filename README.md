@@ -16,10 +16,11 @@ Early development. The first version focuses on PubMed metadata retrieval and ci
 - Summarize source provenance at the response level so agents can see which databases contributed results
 - Validate biomedical research queries and reject obvious personal medical advice requests
 - Optionally write local JSONL audit logs for MCP tool calls without storing full query text or abstracts
+- Normalize DOI metadata, add citation-quality warnings, and use Crossref as a fallback for missing DOI metadata on single-article retrieval
 - Fetch normalized metadata for a PubMed article by PMID
 - Export PubMed records as BibTeX entries
 - Build compact evidence tables for agent workflows
-- Return structured PubMed fields such as PMID, title, authors, journal, year, DOI, abstract, article types, and PubMed URL
+- Return structured PubMed fields such as PMID, title, authors, journal, year, normalized DOI, abstract, article types, PubMed URL, and citation warnings
 - Return structured trial fields such as NCT ID, condition, intervention, phase, status, enrollment, outcomes, locations, sponsors, and linked publication references
 
 ## Why MCP for Biomedical Evidence
@@ -177,11 +178,13 @@ Inputs:
 
 ### `get_pubmed_article`
 
-Fetch one PubMed article by PMID.
+Fetch one PubMed article by PMID. If PubMed does not provide a DOI, the server attempts a conservative Crossref title-match fallback before returning the article.
 
 ### `export_bibtex`
 
 Fetch PubMed articles by PMID and export BibTeX entries.
+
+DOIs are normalized before BibTeX export. Entries with incomplete citation metadata include a BibTeX comment such as `Citation warnings for PMID ...`.
 
 ### `build_evidence_table`
 
@@ -221,7 +224,7 @@ Inputs:
 - `max_pubmed_results`: maximum PubMed records to include
 - `max_trial_results`: maximum ClinicalTrials.gov records to include
 
-Returns `metadata` plus integrated evidence `rows`. Rows include source type, source ID, title, date/year, study type, status, phase, conditions, interventions, outcomes, DOI, URL, and provenance.
+Returns `metadata` plus integrated evidence `rows`. Rows include source type, source ID, title, date/year, study type, status, phase, conditions, interventions, outcomes, DOI, URL, provenance, and citation warnings.
 
 The metadata includes query summary, sources used, source counts, requested/effective PubMed and ClinicalTrials.gov result limits, maximum allowed limits, returned row count, and whether a requested limit was truncated.
 
@@ -252,6 +255,7 @@ Audit events include timestamp, tool name, status, sanitized argument summaries,
 ## Limitations
 
 - PubMed and ClinicalTrials.gov metadata can be incomplete; DOI, abstract, author, journal, publication date, outcomes, locations, or linked PMIDs may be missing.
+- Crossref DOI fallback uses conservative title matching and may leave DOI blank rather than risk adding a wrong DOI.
 - Evidence tables are metadata-oriented in the first version and do not extract PICO elements or judge study quality.
 - Result limits are capped to keep MCP responses manageable; tools report truncation metadata when a request exceeds the configured limit or when a source reports more available records than returned.
 - Query validation is a lightweight safety guardrail, not a complete medical-intent classifier.
@@ -271,6 +275,10 @@ The next milestone, `v0.3.0 Evidence Table 2.0`, introduces a unified biomedical
 ## v0.4.0 Development
 
 The `v0.4.0 Evidence Quality & Safety` milestone adds guardrails for agent-facing biomedical tools. Current improvements add explicit result-limit, truncation, query-summary, source-provenance metadata, lightweight biomedical query validation, and opt-in local audit logging so MCP clients can tell where evidence came from, whether a response was capped, and whether a request falls outside the research-support scope.
+
+## v0.5.0 Development
+
+The `v0.5.0 Citation & Metadata Quality` milestone improves citation reliability with DOI normalization, conservative Crossref fallback for missing DOI metadata, BibTeX quality warnings, and citation provenance warnings for incomplete records.
 
 ## Roadmap
 

@@ -24,6 +24,7 @@ def test_pubmed_article_to_evidence_row_preserves_provenance() -> None:
         doi="10.1000/example",
         abstract="Example abstract.",
         pubmed_url=HttpUrl("https://pubmed.ncbi.nlm.nih.gov/12345678/"),
+        citation_warnings=["missing DOI"],
     )
 
     row = pubmed_article_to_evidence_row(article)
@@ -38,6 +39,7 @@ def test_pubmed_article_to_evidence_row_preserves_provenance() -> None:
     assert row.provenance.source_name == "PubMed"
     assert row.provenance.pmid == "12345678"
     assert row.provenance.nct_id is None
+    assert row.citation_warnings == ["missing DOI"]
 
 
 def test_trial_search_record_to_evidence_row_preserves_trial_fields() -> None:

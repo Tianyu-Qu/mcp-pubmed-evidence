@@ -34,6 +34,7 @@ class PubMedArticle(BaseModel):
     doi: str | None = None
     abstract: str | None = None
     pubmed_url: HttpUrl
+    citation_warnings: list[str] = Field(default_factory=list)
 
 
 class PubMedSearchResult(BaseModel):
@@ -55,3 +56,4 @@ class EvidenceTableRow(BaseModel):
     article_types: list[str]
     doi: str | None
     pubmed_url: HttpUrl
+    citation_warnings: list[str] = Field(default_factory=list)

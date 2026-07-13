@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 
+from .citation import citation_quality_warnings, normalize_doi
 from .models import PubMedArticle
 
 
@@ -16,12 +17,16 @@ def article_to_bibtex(article: PubMedArticle) -> str:
         ("author", " and ".join(article.authors) if article.authors else None),
         ("journal", article.journal),
         ("year", str(article.year) if article.year else None),
-        ("doi", article.doi),
+        ("doi", normalize_doi(article.doi)),
         ("pmid", article.pmid),
         ("url", str(article.pubmed_url)),
     ]
     rendered_fields = [f"  {name} = {{{_escape_bibtex(value)}}}" for name, value in fields if value]
-    return "@article{" + key + ",\n" + ",\n".join(rendered_fields) + "\n}"
+    entry = "@article{" + key + ",\n" + ",\n".join(rendered_fields) + "\n}"
+    warnings = citation_quality_warnings(article)
+    if not warnings:
+        return entry
+    return f"% Citation warnings for PMID {article.pmid}: {', '.join(warnings)}\n{entry}"
 
 
 def articles_to_bibtex(articles: list[PubMedArticle]) -> str:

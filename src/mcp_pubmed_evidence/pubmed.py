@@ -8,6 +8,12 @@ from collections.abc import Iterable
 
 import httpx
 
+from .citation import (
+    CrossrefError,
+    article_with_citation_warnings,
+    enrich_article_with_crossref_doi,
+    normalize_doi,
+)
 from .models import EvidenceTableRow, PubMedArticle, PubMedSearchResult, ResultMetadata
 from .safety import validate_research_query
 
@@ -114,7 +120,10 @@ async def get_pubmed_article(pmid: str) -> PubMedArticle:
 
     if not articles:
         raise PubMedError(f"No PubMed article found for PMID {normalized_pmid}")
-    return articles[0]
+    try:
+        return await enrich_article_with_crossref_doi(articles[0])
+    except CrossrefError:
+        return article_with_citation_warnings(articles[0])
 
 
 def build_evidence_table(articles: Iterable[PubMedArticle]) -> list[EvidenceTableRow]:
@@ -129,6 +138,7 @@ def build_evidence_table(articles: Iterable[PubMedArticle]) -> list[EvidenceTabl
             article_types=article.article_types,
             doi=article.doi,
             pubmed_url=article.pubmed_url,
+            citation_warnings=article.citation_warnings,
         )
         for article in articles
     ]
@@ -243,22 +253,21 @@ def _parse_pubmed_xml(xml_text: str) -> list[PubMedArticle]:
             if text
         ]
         abstract = _parse_abstract(article)
-        doi = _parse_doi(article_node)
+        doi = normalize_doi(_parse_doi(article_node))
 
-        articles.append(
-            PubMedArticle(
-                pmid=pmid,
-                title=title,
-                authors=authors,
-                journal=journal,
-                year=year,
-                publication_date=publication_date,
-                article_types=article_types,
-                doi=doi,
-                abstract=abstract,
-                pubmed_url=f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
-            )
+        article_record = PubMedArticle(
+            pmid=pmid,
+            title=title,
+            authors=authors,
+            journal=journal,
+            year=year,
+            publication_date=publication_date,
+            article_types=article_types,
+            doi=doi,
+            abstract=abstract,
+            pubmed_url=f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
         )
+        articles.append(article_with_citation_warnings(article_record))
 
     return articles
 

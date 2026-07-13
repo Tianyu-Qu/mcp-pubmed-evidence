@@ -34,3 +34,4 @@ class BiomedicalEvidenceRow(BaseModel):
     doi: str | None = None
     url: HttpUrl
     provenance: EvidenceProvenance
+    citation_warnings: list[str] = Field(default_factory=list)

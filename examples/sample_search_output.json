@@ -32,7 +32,10 @@
       ],
       "doi": "10.3390/ijms22073305",
       "abstract": "Example output from search_pubmed. Abstract text may be omitted or shortened in documentation examples.",
-      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/33803217/"
+      "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/33803217/",
+      "citation_warnings": [
+        "missing authors"
+      ]
     }
   ]
 }

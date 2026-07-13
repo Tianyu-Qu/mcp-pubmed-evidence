@@ -59,7 +59,8 @@
         "doi": "10.1016/j.arr.2023.102172",
         "pmid": "38104638",
         "nct_id": null
-      }
+      },
+      "citation_warnings": []
     },
     {
       "source_type": "clinical_trial",
@@ -85,7 +86,8 @@
         "doi": null,
         "pmid": null,
         "nct_id": "NCT05153161"
-      }
+      },
+      "citation_warnings": []
     }
   ]
 }
