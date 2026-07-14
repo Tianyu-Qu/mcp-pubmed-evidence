@@ -131,9 +131,12 @@ async def get_pubmed_article(pmid: str) -> PubMedArticle:
     except OpenAlexError:
         warnings = list(article.metadata_warnings)
         warnings.append("OpenAlex enrichment failed")
+        metadata_sources = list(article.metadata_sources)
+        if "PubMed" not in metadata_sources:
+            metadata_sources.append("PubMed")
         return article.model_copy(
             update={
-                "metadata_sources": [*article.metadata_sources, "PubMed"],
+                "metadata_sources": metadata_sources,
                 "metadata_warnings": warnings,
             }
         )
