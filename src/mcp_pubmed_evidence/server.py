@@ -23,7 +23,13 @@ from .clinicaltrials import (
     search_trials as search_trials_core,
 )
 from .evidence_models import BiomedicalEvidenceRow
-from .evidence_table import build_biomedical_evidence_table as build_biomedical_table_core
+from .evidence_table import (
+    build_biomedical_evidence_table as build_biomedical_table_core,
+)
+from .evidence_table import (
+    evidence_rows_to_markdown,
+    sort_and_filter_evidence_rows,
+)
 from .pubmed import (
     MAX_RESULTS_LIMIT as PUBMED_MAX_RESULTS_LIMIT,
 )
@@ -252,6 +258,10 @@ async def build_biomedical_evidence_table(
     intervention: str | None = None,
     max_pubmed_results: int = 10,
     max_trial_results: int = 10,
+    source_types: list[str] | None = None,
+    study_designs: list[str] | None = None,
+    statuses: list[str] | None = None,
+    sort_by: str = "year_desc",
 ) -> dict:
     """Build a unified evidence table from PubMed and ClinicalTrials.gov results."""
 
@@ -262,6 +272,13 @@ async def build_biomedical_evidence_table(
             intervention=intervention,
             max_pubmed_results=max_pubmed_results,
             max_trial_results=max_trial_results,
+        )
+        rows = sort_and_filter_evidence_rows(
+            rows,
+            source_types=source_types,
+            study_designs=study_designs,
+            statuses=statuses,
+            sort_by=sort_by,
         )
         source_counts = Counter(row.source_type for row in rows)
         return {
@@ -284,11 +301,18 @@ async def build_biomedical_evidence_table(
                 "max_allowed_pubmed_results": PUBMED_MAX_RESULTS_LIMIT,
                 "max_allowed_trial_results": TRIAL_MAX_RESULTS_LIMIT,
                 "returned_count": len(rows),
+                "filters": {
+                    "source_types": source_types or [],
+                    "study_designs": study_designs or [],
+                    "statuses": statuses or [],
+                    "sort_by": sort_by,
+                },
                 "truncated": (
                     max_pubmed_results > PUBMED_MAX_RESULTS_LIMIT
                     or max_trial_results > TRIAL_MAX_RESULTS_LIMIT
                 ),
             },
+            "display_markdown": evidence_rows_to_markdown(rows),
             "rows": [row.model_dump(mode="json") for row in rows],
         }
 
@@ -300,6 +324,10 @@ async def build_biomedical_evidence_table(
             "intervention": intervention,
             "max_pubmed_results": max_pubmed_results,
             "max_trial_results": max_trial_results,
+            "source_types": source_types or [],
+            "study_designs": study_designs or [],
+            "statuses": statuses or [],
+            "sort_by": sort_by,
         },
         operation,
     )

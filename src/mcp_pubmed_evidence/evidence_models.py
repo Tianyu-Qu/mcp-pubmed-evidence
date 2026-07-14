@@ -26,7 +26,10 @@ class BiomedicalEvidenceRow(BaseModel):
     title: str | None = None
     year_or_start_date: str | None = None
     study_type: str | None = None
+    normalized_study_design: str = "unknown"
     status: str | None = None
+    normalized_status: str = "unknown"
+    evidence_level: str = "unknown"
     phase: str | None = None
     conditions: list[str] = Field(default_factory=list)
     interventions: list[str] = Field(default_factory=list)

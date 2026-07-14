@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.6.0 - Evidence Table Enrichment
+
+### Added
+
+- Normalized study design fields for PubMed and ClinicalTrials.gov evidence rows.
+- Harmonized trial status fields such as `active`, `completed`, and `stopped`.
+- Evidence-level labels for easier sorting and downstream agent reasoning.
+- Markdown display table export for `build_biomedical_evidence_table`.
+- Sorting and filtering options for unified evidence table rows.
+
 ## v0.5.1 - Maintenance
 
 ### Added

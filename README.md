@@ -17,6 +17,7 @@ Active early-stage project. Current releases integrate PubMed, ClinicalTrials.go
 - Validate biomedical research queries and reject obvious personal medical advice requests
 - Optionally write local JSONL audit logs for MCP tool calls without storing full query text or abstracts
 - Normalize DOI metadata, add citation-quality warnings, and use Crossref as a fallback for missing DOI metadata on single-article retrieval
+- Enrich unified evidence tables with normalized study design, harmonized status, evidence-level labels, Markdown export, sorting, and filtering
 - Fetch normalized metadata for a PubMed article by PMID
 - Export PubMed records as BibTeX entries
 - Build compact evidence tables for agent workflows
@@ -223,8 +224,12 @@ Inputs:
 - `intervention`: optional intervention, drug, or device filter for ClinicalTrials.gov
 - `max_pubmed_results`: maximum PubMed records to include
 - `max_trial_results`: maximum ClinicalTrials.gov records to include
+- `source_types`: optional filter, such as `["pubmed"]` or `["clinical_trial"]`
+- `study_designs`: optional filter, such as `["review"]`, `["randomized_trial"]`, or `["interventional_trial"]`
+- `statuses`: optional filter, such as `["published"]`, `["active"]`, or `["completed"]`
+- `sort_by`: optional sort mode: `year_desc`, `year_asc`, `title_asc`, `evidence_level`, `source_type_asc`, or `source_type_desc`
 
-Returns `metadata` plus integrated evidence `rows`. Rows include source type, source ID, title, date/year, study type, status, phase, conditions, interventions, outcomes, DOI, URL, provenance, and citation warnings.
+Returns `metadata`, `display_markdown`, and integrated evidence `rows`. Rows include source type, source ID, title, date/year, raw study type, normalized study design, raw status, normalized status, evidence level, phase, conditions, interventions, outcomes, DOI, URL, provenance, and citation warnings.
 
 The metadata includes query summary, sources used, source counts, requested/effective PubMed and ClinicalTrials.gov result limits, maximum allowed limits, returned row count, and whether a requested limit was truncated.
 
@@ -299,6 +304,10 @@ The `v0.4.0 Evidence Quality & Safety` milestone adds guardrails for agent-facin
 ## v0.5.0 Development
 
 The `v0.5.0 Citation & Metadata Quality` milestone improves citation reliability with DOI normalization, conservative Crossref fallback for missing DOI metadata, BibTeX quality warnings, and citation provenance warnings for incomplete records.
+
+## v0.6.0 Development
+
+The `v0.6.0 Evidence Table Enrichment` milestone improves unified evidence tables with study design normalization, publication type and trial status harmonization, Markdown display export, and sorting/filtering options.
 
 ## Roadmap
 

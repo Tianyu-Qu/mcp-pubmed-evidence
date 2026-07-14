@@ -36,8 +36,15 @@
     "max_allowed_pubmed_results": 50,
     "max_allowed_trial_results": 50,
     "returned_count": 2,
+    "filters": {
+      "source_types": [],
+      "study_designs": [],
+      "statuses": [],
+      "sort_by": "year_desc"
+    },
     "truncated": false
   },
+  "display_markdown": "| Source | ID | Year/Start | Design | Status | Phase | Title | DOI | URL |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| pubmed | 38104638 | 2024 | review | published |  | Machine learning in Alzheimer's disease drug discovery and target identification. | 10.1016/j.arr.2023.102172 | https://pubmed.ncbi.nlm.nih.gov/38104638/ |\n| clinical_trial | NCT05153161 | 2022-08-31 | interventional_trial | completed | PHASE1 | Memesto Wearable Device for Persons With Dementia |  | https://clinicaltrials.gov/study/NCT05153161 |",
   "rows": [
     {
       "source_type": "pubmed",
@@ -45,7 +52,10 @@
       "title": "Machine learning in Alzheimer's disease drug discovery and target identification.",
       "year_or_start_date": "2024",
       "study_type": "Review",
+      "normalized_study_design": "review",
       "status": null,
+      "normalized_status": "published",
+      "evidence_level": "context",
       "phase": null,
       "conditions": [],
       "interventions": [],
@@ -68,7 +78,10 @@
       "title": "Memesto Wearable Device for Persons With Dementia",
       "year_or_start_date": "2022-08-31",
       "study_type": "INTERVENTIONAL",
+      "normalized_study_design": "interventional_trial",
       "status": "COMPLETED",
+      "normalized_status": "completed",
+      "evidence_level": "trial_record_completed",
       "phase": "PHASE1",
       "conditions": [
         "Alzheimer Disease"

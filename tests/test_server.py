@@ -90,6 +90,9 @@ async def test_build_biomedical_evidence_table_returns_limit_metadata(
         title="Example article",
         year_or_start_date="2024",
         study_type="Journal Article",
+        normalized_study_design="journal_article",
+        normalized_status="published",
+        evidence_level="context",
         doi="10.1000/example",
         url=HttpUrl("https://pubmed.ncbi.nlm.nih.gov/12345678/"),
         provenance=EvidenceProvenance(
@@ -113,6 +116,8 @@ async def test_build_biomedical_evidence_table_returns_limit_metadata(
         query="Alzheimer disease",
         max_pubmed_results=500,
         max_trial_results=2,
+        source_types=["pubmed"],
+        sort_by="year_desc",
     )
 
     assert result["metadata"]["requested_max_pubmed_results"] == 500
@@ -134,5 +139,13 @@ async def test_build_biomedical_evidence_table_returns_limit_metadata(
     assert result["metadata"]["effective_max_pubmed_results"] == 50
     assert result["metadata"]["max_allowed_pubmed_results"] == 50
     assert result["metadata"]["returned_count"] == 1
+    assert result["metadata"]["filters"] == {
+        "source_types": ["pubmed"],
+        "study_designs": [],
+        "statuses": [],
+        "sort_by": "year_desc",
+    }
     assert result["metadata"]["truncated"] is True
+    assert result["display_markdown"].startswith("| Source | ID |")
     assert result["rows"][0]["source_id"] == "12345678"
+    assert result["rows"][0]["normalized_study_design"] == "journal_article"
