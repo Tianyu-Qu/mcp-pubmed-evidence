@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.5.1 - Maintenance
+
+### Added
+
+- GitHub Actions CI for `ruff check .` and `pytest` on Python 3.10, 3.11, and 3.12.
+- Tag version-check workflow to verify that pushed tags match `pyproject.toml`.
+- Version helper scripts in `tools/`.
+- Release checklist in `docs/RELEASE_CHECKLIST.md`.
+- GitHub issue templates for bugs, feature requests, and maintenance tasks.
+
+### Changed
+
+- Updated the package version to `0.5.1`.
+
 ## v0.2.0 - ClinicalTrials.gov Evidence Tools
 
 ### Added

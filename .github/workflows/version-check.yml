@@ -1,0 +1,28 @@
+name: Version check
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  version-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify tag matches pyproject version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: python tools/check_version.py "${GITHUB_REF_NAME}"
+
+      - name: Print package version
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        run: python tools/check_version.py

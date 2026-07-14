@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Safety scope
+    url: https://github.com/Tianyu-Qu/mcp-pubmed-evidence#safety-scope
+    about: This project supports biomedical research workflows and does not provide medical advice.

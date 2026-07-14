@@ -6,7 +6,7 @@ This project exposes PubMed as structured MCP tools so AI assistants can retriev
 
 ## Status
 
-Early development. The first version focuses on PubMed metadata retrieval and citation provenance.
+Active early-stage project. Current releases integrate PubMed, ClinicalTrials.gov, unified evidence tables, citation metadata quality checks, and safety-oriented MCP tool guardrails.
 
 ## Features
 
@@ -230,6 +230,12 @@ The metadata includes query summary, sources used, source counts, requested/effe
 
 ## Development
 
+Install development dependencies:
+
+```powershell
+pip install -e .[dev]
+```
+
 Run tests:
 
 ```powershell
@@ -241,6 +247,20 @@ Run linting:
 ```powershell
 ruff check .
 ```
+
+Check the package version:
+
+```powershell
+python tools/check_version.py
+```
+
+Bump the package version before a release:
+
+```powershell
+python tools/bump_version.py 0.5.1
+```
+
+CI runs `ruff check .` and `pytest` on Python 3.10, 3.11, and 3.12 for pushes and pull requests.
 
 ## Audit Logging
 
@@ -266,7 +286,7 @@ Audit events include timestamp, tool name, status, sanitized argument summaries,
 
 ## Release Notes
 
-See [CHANGELOG.md](CHANGELOG.md) for v0.1.0 release notes.
+See [CHANGELOG.md](CHANGELOG.md) for release notes and [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) for the release checklist.
 
 ## v0.3.0 Development
 
