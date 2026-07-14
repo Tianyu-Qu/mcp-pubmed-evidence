@@ -61,6 +61,11 @@
       "interventions": [],
       "outcomes": [],
       "doi": "10.1016/j.arr.2023.102172",
+      "citation_count": null,
+      "is_open_access": null,
+      "open_access_url": null,
+      "venue": "Ageing Research Reviews",
+      "normalized_venue": "ageing research reviews",
       "url": "https://pubmed.ncbi.nlm.nih.gov/38104638/",
       "provenance": {
         "source_name": "PubMed",
@@ -70,7 +75,8 @@
         "pmid": "38104638",
         "nct_id": null
       },
-      "citation_warnings": []
+      "citation_warnings": [],
+      "metadata_warnings": []
     },
     {
       "source_type": "clinical_trial",
@@ -91,6 +97,11 @@
       ],
       "outcomes": [],
       "doi": null,
+      "citation_count": null,
+      "is_open_access": null,
+      "open_access_url": null,
+      "venue": null,
+      "normalized_venue": null,
       "url": "https://clinicaltrials.gov/study/NCT05153161",
       "provenance": {
         "source_name": "ClinicalTrials.gov",
@@ -100,7 +111,8 @@
         "pmid": null,
         "nct_id": "NCT05153161"
       },
-      "citation_warnings": []
+      "citation_warnings": [],
+      "metadata_warnings": []
     }
   ]
 }

@@ -27,6 +27,12 @@ def test_pubmed_article_to_evidence_row_preserves_provenance() -> None:
         abstract="Example abstract.",
         pubmed_url=HttpUrl("https://pubmed.ncbi.nlm.nih.gov/12345678/"),
         citation_warnings=["missing DOI"],
+        citation_count=12,
+        is_open_access=True,
+        open_access_url="https://example.org/article.pdf",
+        venue="Example Journal",
+        normalized_venue="example journal",
+        metadata_warnings=["OpenAlex venue differs from PubMed journal"],
     )
 
     row = pubmed_article_to_evidence_row(article)
@@ -45,6 +51,10 @@ def test_pubmed_article_to_evidence_row_preserves_provenance() -> None:
     assert row.provenance.pmid == "12345678"
     assert row.provenance.nct_id is None
     assert row.citation_warnings == ["missing DOI"]
+    assert row.citation_count == 12
+    assert row.is_open_access is True
+    assert row.normalized_venue == "example journal"
+    assert row.metadata_warnings == ["OpenAlex venue differs from PubMed journal"]
 
 
 def test_trial_search_record_to_evidence_row_preserves_trial_fields() -> None:

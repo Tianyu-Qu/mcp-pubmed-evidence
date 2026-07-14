@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.7.0 - Scholarly Metadata Enrichment
+
+### Added
+
+- OpenAlex metadata lookup by DOI for single PubMed article retrieval.
+- Citation count and open access metadata fields.
+- Journal and venue normalization.
+- Metadata source reconciliation warnings for DOI or venue mismatches.
+
 ## v0.6.0 - Evidence Table Enrichment
 
 ### Added

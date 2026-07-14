@@ -128,6 +128,11 @@ def pubmed_article_to_evidence_row(article: PubMedArticle) -> BiomedicalEvidence
         interventions=[],
         outcomes=[],
         doi=article.doi,
+        citation_count=article.citation_count,
+        is_open_access=article.is_open_access,
+        open_access_url=article.open_access_url,
+        venue=article.venue,
+        normalized_venue=article.normalized_venue,
         url=source_url,
         provenance=EvidenceProvenance(
             source_name="PubMed",
@@ -138,6 +143,7 @@ def pubmed_article_to_evidence_row(article: PubMedArticle) -> BiomedicalEvidence
             nct_id=None,
         ),
         citation_warnings=article.citation_warnings,
+        metadata_warnings=article.metadata_warnings,
     )
 
 
@@ -161,6 +167,11 @@ def trial_to_evidence_row(trial: TrialSearchRecord | TrialSummary) -> Biomedical
         interventions=trial.interventions,
         outcomes=outcomes,
         doi=None,
+        citation_count=None,
+        is_open_access=None,
+        open_access_url=None,
+        venue=None,
+        normalized_venue=None,
         url=source_url,
         provenance=EvidenceProvenance(
             source_name="ClinicalTrials.gov",
@@ -171,6 +182,7 @@ def trial_to_evidence_row(trial: TrialSearchRecord | TrialSummary) -> Biomedical
             nct_id=trial.nct_id,
         ),
         citation_warnings=[],
+        metadata_warnings=[],
     )
 
 

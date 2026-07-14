@@ -186,6 +186,8 @@ def test_parse_pubmed_xml_normalizes_article() -> None:
     assert article.publication_date == "2024 Jan"
     assert article.doi == "10.1000/example.doi"
     assert article.citation_warnings == []
+    assert article.metadata_sources == ["PubMed"]
+    assert article.normalized_venue == "journal of biomedical evidence"
     assert "BACKGROUND: Risk prediction matters." in article.abstract
     assert "Validation Study" in article.article_types
     assert str(article.pubmed_url) == "https://pubmed.ncbi.nlm.nih.gov/12345678/"

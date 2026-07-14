@@ -18,6 +18,7 @@ Active early-stage project. Current releases integrate PubMed, ClinicalTrials.go
 - Optionally write local JSONL audit logs for MCP tool calls without storing full query text or abstracts
 - Normalize DOI metadata, add citation-quality warnings, and use Crossref as a fallback for missing DOI metadata on single-article retrieval
 - Enrich unified evidence tables with normalized study design, harmonized status, evidence-level labels, Markdown export, sorting, and filtering
+- Enrich single-article citation metadata with OpenAlex DOI lookup, citation counts, open access metadata, venue normalization, and reconciliation warnings
 - Fetch normalized metadata for a PubMed article by PMID
 - Export PubMed records as BibTeX entries
 - Build compact evidence tables for agent workflows
@@ -181,6 +182,8 @@ Inputs:
 
 Fetch one PubMed article by PMID. If PubMed does not provide a DOI, the server attempts a conservative Crossref title-match fallback before returning the article.
 
+When a DOI is available, this tool also attempts OpenAlex enrichment by DOI. The returned article may include `citation_count`, `is_open_access`, `open_access_url`, `venue`, `normalized_venue`, `metadata_sources`, and `metadata_warnings`.
+
 ### `export_bibtex`
 
 Fetch PubMed articles by PMID and export BibTeX entries.
@@ -308,6 +311,10 @@ The `v0.5.0 Citation & Metadata Quality` milestone improves citation reliability
 ## v0.6.0 Development
 
 The `v0.6.0 Evidence Table Enrichment` milestone improves unified evidence tables with study design normalization, publication type and trial status harmonization, Markdown display export, and sorting/filtering options.
+
+## v0.7.0 Development
+
+The `v0.7.0 Scholarly Metadata Enrichment` milestone adds OpenAlex DOI lookup, citation count and open access metadata, venue normalization, and source reconciliation warnings.
 
 ## Roadmap
 

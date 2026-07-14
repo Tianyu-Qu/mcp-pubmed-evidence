@@ -35,7 +35,16 @@
       "pubmed_url": "https://pubmed.ncbi.nlm.nih.gov/33803217/",
       "citation_warnings": [
         "missing authors"
-      ]
+      ],
+      "citation_count": null,
+      "is_open_access": null,
+      "open_access_url": null,
+      "venue": "International Journal of Molecular Sciences",
+      "normalized_venue": "international journal of molecular sciences",
+      "metadata_sources": [
+        "PubMed"
+      ],
+      "metadata_warnings": []
     }
   ]
 }

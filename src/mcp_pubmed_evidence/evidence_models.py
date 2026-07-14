@@ -35,6 +35,12 @@ class BiomedicalEvidenceRow(BaseModel):
     interventions: list[str] = Field(default_factory=list)
     outcomes: list[str] = Field(default_factory=list)
     doi: str | None = None
+    citation_count: int | None = None
+    is_open_access: bool | None = None
+    open_access_url: str | None = None
+    venue: str | None = None
+    normalized_venue: str | None = None
     url: HttpUrl
     provenance: EvidenceProvenance
     citation_warnings: list[str] = Field(default_factory=list)
+    metadata_warnings: list[str] = Field(default_factory=list)

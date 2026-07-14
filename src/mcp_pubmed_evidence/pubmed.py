@@ -15,6 +15,7 @@ from .citation import (
     normalize_doi,
 )
 from .models import EvidenceTableRow, PubMedArticle, PubMedSearchResult, ResultMetadata
+from .openalex import OpenAlexError, enrich_article_with_openalex, normalize_venue
 from .safety import validate_research_query
 
 NCBI_EUTILS_BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
@@ -121,9 +122,21 @@ async def get_pubmed_article(pmid: str) -> PubMedArticle:
     if not articles:
         raise PubMedError(f"No PubMed article found for PMID {normalized_pmid}")
     try:
-        return await enrich_article_with_crossref_doi(articles[0])
+        article = await enrich_article_with_crossref_doi(articles[0])
     except CrossrefError:
-        return article_with_citation_warnings(articles[0])
+        article = article_with_citation_warnings(articles[0])
+
+    try:
+        return await enrich_article_with_openalex(article)
+    except OpenAlexError:
+        warnings = list(article.metadata_warnings)
+        warnings.append("OpenAlex enrichment failed")
+        return article.model_copy(
+            update={
+                "metadata_sources": [*article.metadata_sources, "PubMed"],
+                "metadata_warnings": warnings,
+            }
+        )
 
 
 def build_evidence_table(articles: Iterable[PubMedArticle]) -> list[EvidenceTableRow]:
@@ -139,6 +152,12 @@ def build_evidence_table(articles: Iterable[PubMedArticle]) -> list[EvidenceTabl
             doi=article.doi,
             pubmed_url=article.pubmed_url,
             citation_warnings=article.citation_warnings,
+            citation_count=article.citation_count,
+            is_open_access=article.is_open_access,
+            open_access_url=article.open_access_url,
+            venue=article.venue,
+            normalized_venue=article.normalized_venue,
+            metadata_warnings=article.metadata_warnings,
         )
         for article in articles
     ]
@@ -266,6 +285,9 @@ def _parse_pubmed_xml(xml_text: str) -> list[PubMedArticle]:
             doi=doi,
             abstract=abstract,
             pubmed_url=f"https://pubmed.ncbi.nlm.nih.gov/{pmid}/",
+            venue=journal,
+            normalized_venue=normalize_venue(journal),
+            metadata_sources=["PubMed"],
         )
         articles.append(article_with_citation_warnings(article_record))
 

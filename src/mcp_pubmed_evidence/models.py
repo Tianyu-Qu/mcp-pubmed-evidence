@@ -35,6 +35,13 @@ class PubMedArticle(BaseModel):
     abstract: str | None = None
     pubmed_url: HttpUrl
     citation_warnings: list[str] = Field(default_factory=list)
+    citation_count: int | None = None
+    is_open_access: bool | None = None
+    open_access_url: str | None = None
+    venue: str | None = None
+    normalized_venue: str | None = None
+    metadata_sources: list[str] = Field(default_factory=list)
+    metadata_warnings: list[str] = Field(default_factory=list)
 
 
 class PubMedSearchResult(BaseModel):
@@ -57,3 +64,9 @@ class EvidenceTableRow(BaseModel):
     doi: str | None
     pubmed_url: HttpUrl
     citation_warnings: list[str] = Field(default_factory=list)
+    citation_count: int | None = None
+    is_open_access: bool | None = None
+    open_access_url: str | None = None
+    venue: str | None = None
+    normalized_venue: str | None = None
+    metadata_warnings: list[str] = Field(default_factory=list)
